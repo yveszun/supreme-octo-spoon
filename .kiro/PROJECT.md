@@ -25,7 +25,7 @@
 **Human Decision:** Use real Massachusetts hospital data
 
 **Kiro AI Contribution:**
-- Sourced 87 MA hospitals from CMS Hospital Compare (public data)
+- Sourced 20 MA hospitals (representative sample) from CMS Hospital Compare (public data)
 - Created synthetic patient referrals with clinically appropriate barriers
 - Ensured data diversity: 6 barrier types, 8+ specialties, geographic distribution
 - Generated realistic patient scenarios (transportation deserts, language barriers, insurance friction)

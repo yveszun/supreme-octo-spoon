@@ -50,7 +50,7 @@ Care coordinators manage hundreds of these referrals manually with spreadsheets,
 
 1. **Download** `referall.html`
 2. **Open** in any modern web browser (Chrome, Firefox, Safari, Edge)
-3. **Explore** the demo with 87 real Massachusetts hospitals and 25 synthetic patient referrals
+3. **Explore** the demo with 20 Massachusetts hospitals (representative sample) and 25 synthetic patient referrals
 
 ```bash
 # Or clone and open
@@ -103,7 +103,7 @@ Barrier-specific action templates:
 ## 🏥 Data Sources
 
 ### Hospital Data (Real)
-**87 Massachusetts hospitals** from [CMS Hospital Compare](https://data.cms.gov/provider-data/topics/hospitals)
+**20 Massachusetts hospitals** (representative sample) from [CMS Hospital Compare](https://data.cms.gov/provider-data/topics/hospitals)
 - Hospital names, addresses, phone numbers
 - Available specialties (cardiology, orthopedics, neurology, etc.)
 - Emergency services flags
