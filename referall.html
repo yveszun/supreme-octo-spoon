@@ -1771,14 +1771,20 @@
                 return;
             }
             
-            // Generate the plan
-            const plan = generateCoordinationPlan(referral);
+            // Use existing plan or generate new one
+            let plan;
+            if (referral.coordinationPlan) {
+                // Preserve existing plan with completed actions
+                plan = referral.coordinationPlan;
+            } else {
+                // Generate new plan only if none exists
+                plan = generateCoordinationPlan(referral);
+                referral.coordinationPlan = plan;
+                saveToLocalStorage();
+            }
+            
             const priority = calculatePriority(referral);
             const priorityColor = getPriorityColor(priority.level);
-            
-            // Store the plan in the referral object
-            referral.coordinationPlan = plan;
-            saveToLocalStorage();
             
             // Render the plan
             planDiv.innerHTML = `
@@ -1794,7 +1800,7 @@
                     </div>
                     
                     <div class="text-xs text-gray-600 mb-3">
-                        Generated: ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        Generated: ${new Date(plan.generatedAt || new Date().toISOString()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </div>
                     
                     <div class="space-y-3">
@@ -1856,6 +1862,7 @@
             const action = referral.coordinationPlan.actions.find(a => a.id === actionId);
             if (!action) return;
             
+            // Toggle action completion
             action.completed = !action.completed;
             
             // Update completed array
@@ -1867,12 +1874,54 @@
                 referral.coordinationPlan.completed = referral.coordinationPlan.completed.filter(id => id !== actionId);
             }
             
+            // Save to localStorage
             saveToLocalStorage();
             updateImpactMetrics();
             
-            // Re-render the plan to update progress
-            toggleCoordinationPlan(referralId); // Close
-            toggleCoordinationPlan(referralId); // Re-open with updated data
+            // Update UI without closing/reopening
+            const plan = referral.coordinationPlan;
+            const planDiv = document.getElementById(`coordinationPlan-${referralId}`);
+            
+            // Update checkbox visual state
+            const checkbox = document.getElementById(`action-${actionId}`);
+            if (checkbox) {
+                checkbox.checked = action.completed;
+            }
+            
+            // Update action text styling
+            const label = checkbox?.parentElement?.parentElement?.querySelector('.font-semibold');
+            if (label) {
+                if (action.completed) {
+                    label.classList.add('line-through');
+                } else {
+                    label.classList.remove('line-through');
+                }
+            }
+            
+            // Update progress stats
+            const completedCount = plan.completed.length;
+            const totalCount = plan.actions.length;
+            const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+            
+            const progressContainer = planDiv.querySelector('.mt-4.flex.items-center.justify-between');
+            if (progressContainer) {
+                progressContainer.innerHTML = `
+                    <span>${completedCount} of ${totalCount} actions completed</span>
+                    <span class="text-blue-600 font-medium">Progress: ${progressPercent}%</span>
+                `;
+            }
+            
+            // Update next step recommendation
+            const nextStepDiv = planDiv.querySelector('.mt-3.p-2.bg-blue-50');
+            if (nextStepDiv) {
+                const nextAction = plan.actions.find(a => !a.completed);
+                nextStepDiv.innerHTML = `
+                    <strong>💡 Next Step:</strong> ${nextAction ? nextAction.action : 'All actions completed!'}
+                `;
+            }
+            
+            // Update dashboard metrics
+            updateStats();
         }
 
         function generateTimeline(referral) {
