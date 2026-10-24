@@ -260,15 +260,6 @@ MIT License - see [LICENSE](LICENSE) for details
 
 ---
 
-## 🔗 Links
-
-- **Live Demo:** [Open referall.html in browser]
-- **GitHub:** https://github.com/yourusername/referall
-- **Hackathon:** [Link to Hackachusetts 2026]
-- **Pitch Deck:** [Coming soon]
-
----
-
 ## ⭐ Star This Repo
 
 If ReferAll helped you understand healthcare coordination challenges or inspired your own project, please star this repo!
