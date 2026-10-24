@@ -1,9 +1,9 @@
 # ReferAll - Healthcare Referral Coordination Platform
 **Hackachusetts 2026 | Healthcare & Biotechnology Track**
 
-[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Try_Now-brightgreen)](https://yveszun.github.io/supreme-octo-spoon/) [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/yveszun/supreme-octo-spoon) [![Status](https://img.shields.io/badge/Status-Hackathon_Submission-orange)](https://github.com/yveszun/supreme-octo-spoon)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Try_Now-brightgreen)](https://yveszun.github.io/supreme-octo-spoon/) [![Video Demo](https://img.shields.io/badge/📺_Video_Demo-Watch-red)](https://www.youtube.com/watch?v=onHUSlLvtyA) [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/yveszun/supreme-octo-spoon) [![Status](https://img.shields.io/badge/Status-Hackathon_Submission-orange)](https://github.com/yveszun/supreme-octo-spoon)
 
-> **🌐 [Try ReferAll Live](https://yveszun.github.io/supreme-octo-spoon/)** - No installation required!
+> **🌐 [Try ReferAll Live](https://yveszun.github.io/supreme-octo-spoon/)** | **📺 [Watch Video Demo](https://www.youtube.com/watch?v=onHUSlLvtyA)** - No installation required!
 
 ReferAll is a coordination intelligence platform that helps healthcare coordinators prioritize patient referrals and identify system-wide bottlenecks. Built to integrate with existing EHR systems (Epic, Cerner) via HL7 FHIR APIs.
 
@@ -51,7 +51,14 @@ Care coordinators manage hundreds of these referrals manually with spreadsheets,
 ### Option 1: Try Online (Recommended) 🌐
 **No installation required!** Click to try immediately:
 
-# 👉 **[https://yveszun.github.io/supreme-octo-spoon/](https://yveszun.github.io/supreme-octo-spoon/)**
+# 👉 **[Launch Live Demo](https://yveszun.github.io/supreme-octo-spoon/)**
+
+### Watch the Demo Video 📺
+See ReferAll in action (3 minutes):
+
+# 🎥 **[Watch on YouTube](https://www.youtube.com/watch?v=onHUSlLvtyA)**
+
+[![ReferAll Demo Video](https://img.youtube.com/vi/onHUSlLvtyA/maxresdefault.jpg)](https://www.youtube.com/watch?v=onHUSlLvtyA)
 
 Works on any device with a modern web browser (Chrome, Firefox, Safari, Edge).
 
