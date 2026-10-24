@@ -251,15 +251,6 @@ MIT License - see [LICENSE](LICENSE) for details
 
 ---
 
-## 📚 Additional Documentation
-
-- [Demo Script](🎤_DEMO_SCRIPT.md) - 5-7 minute presentation walkthrough
-- [Judge Q&A](❓_JUDGE_QA.md) - Answers to common questions
-- [Positioning Strategy](🎯_POSITIONING.md) - "Intelligence layer" approach
-- [Test Plan](🎯_TEST_v3.0_FINAL.txt) - Feature verification checklist
-
----
-
 ## ⭐ Star This Repo
 
 If ReferAll helped you understand healthcare coordination challenges or inspired your own project, please star this repo!
