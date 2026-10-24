@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReferAll - Healthcare Referral Coordination Platform v3.0 FINAL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .status-badge {
+            transition: all 0.3s ease;
+        }
+        .referral-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .barrier-icon {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .timeline-step {
+            position: relative;
+        }
+        .timeline-step::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: #e5e7eb;
+            left: 11px;
+            top: 24px;
+        }
+        .timeline-step:last-child::after {
+            display: none;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 320px;
+            background-color: #1f2937;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1001;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -160px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            white-space: pre-line;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1f2937 transparent transparent transparent;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold">ReferAll</h1>
+                    <p class="text-blue-100 text-sm">Healthcare Referral Coordination Platform</p>
+                    <p class="text-blue-200 text-xs mt-1">Explainable Intelligence • Actionable Coordination • Privacy-Conscious Design</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm opacity-90">Hackachusetts 2026 - Healthcare Track</div>
+                    <div class="text-xs opacity-75">Challenge H3: Healthcare Access & Coordination</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-7 gap-4 mb-6">
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-gray-500 text-sm">Total Hospitals</div>
+                <div class="text-3xl font-bold text-blue-600" id="totalHospitals">87</div>
+                <div class="text-xs text-gray-400 mt-1">Real MA Facilities</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-gray-500 text-sm">Active Referrals</div>
+                <div class="text-3xl font-bold text-green-600" id="activeReferrals">25</div>
+                <div class="text-xs text-gray-400 mt-1">Synthetic Demo Data</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-gray-500 text-sm">Completion Rate</div>
+                <div class="text-3xl font-bold text-purple-600" id="completionRate">0%</div>
+                <div class="text-xs text-gray-400 mt-1" id="completionRateDetail">0 of 25 completed</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-gray-500 text-sm">Needs Attention</div>
+                <div class="text-3xl font-bold text-red-600" id="stuckReferrals">0</div>
+                <div class="text-xs text-gray-400 mt-1">Barriers Identified</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-gray-500 text-sm">Actions Completed</div>
+                <div class="text-3xl font-bold text-teal-600" id="actionsCompleted">0</div>
+                <div class="text-xs text-gray-400 mt-1">Coordination tasks done</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-gray-500 text-sm">Barriers Resolved</div>
+                <div class="text-3xl font-bold text-purple-600" id="barriersResolved">0</div>
+                <div class="text-xs text-gray-400 mt-1">Confirmed resolved</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="text-gray-500 text-sm">Active Plans</div>
+                <div class="text-3xl font-bold text-indigo-600" id="activePlans">0</div>
+                <div class="text-xs text-gray-400 mt-1">Coordination Plans</div>
+            </div>
+        </div>
+
+        <!-- Three Column Layout -->
+        <div class="grid grid-cols-12 gap-6">
+            <!-- Left Panel: Hospital Dashboard -->
+            <div class="col-span-3 bg-white rounded-lg shadow-lg p-4">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">Hospital Dashboard</h2>
+                <div class="text-xs bg-blue-50 border border-blue-200 rounded p-2 mb-4">
+                    ℹ️ <strong>Real Data:</strong> 87 Massachusetts hospitals from CMS Hospital Compare
+                </div>
+                
+                <!-- Filters -->
+                <div class="space-y-3 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">County</label>
+                        <select id="countyFilter" class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="">All Counties</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Hospital Type</label>
+                        <select id="typeFilter" class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="">All Types</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Services</label>
+                        <select id="emergencyFilter" class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="">All</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Hospital List -->
+                <div id="hospitalList" class="space-y-2 max-h-[calc(100vh-450px)] overflow-y-auto">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Center Panel: Referral Tracker -->
+            <div class="col-span-6 bg-white rounded-lg shadow-lg p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">Referral Tracker</h2>
+                    <div class="flex gap-2">
+                        <button onclick="filterStatus('all')" class="px-3 py-1 text-sm rounded bg-gray-200 hover:bg-gray-300">All</button>
+                        <button onclick="filterStatus('stuck')" class="px-3 py-1 text-sm rounded bg-red-100 hover:bg-red-200 text-red-700">Stuck</button>
+                        <button onclick="filterStatus('active')" class="px-3 py-1 text-sm rounded bg-yellow-100 hover:bg-yellow-200 text-yellow-700">In Progress</button>
+                        <button onclick="filterStatus('completed')" class="px-3 py-1 text-sm rounded bg-green-100 hover:bg-green-200 text-green-700">Completed</button>
+                    </div>
+                </div>
+                
+                <div class="text-xs bg-yellow-50 border border-yellow-200 rounded p-2 mb-4">
+                    ⚠️ <strong>Synthetic Data:</strong> Patient referrals below are generated for demonstration purposes only
+                </div>
+
+                <!-- Referral Cards -->
+                <div id="referralList" class="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Right Panel: Barrier Analysis -->
+            <div class="col-span-3 bg-white rounded-lg shadow-lg p-4">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">Barrier Analysis</h2>
+                
+                <div id="barrierPanel" class="space-y-4">
+                    <div class="text-center text-gray-400 py-8">
+                        <svg class="w-16 h-16 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        <p class="text-sm">Select a referral to view barriers and recommendations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 3: Referral Bottleneck Intelligence (Full Width, Collapsible) -->
+        <div class="mt-6 bg-white rounded-lg shadow-lg">
+            <button onclick="toggleBottleneckSection()" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <div class="text-left">
+                        <h2 class="text-xl font-bold text-gray-900">Referral Bottleneck Intelligence</h2>
+                        <p class="text-xs text-gray-600 mt-1">System-wide barrier patterns requiring policy-level interventions</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div id="bottleneckSummaryBadge" class="text-xs font-semibold px-3 py-1 rounded-full bg-blue-600 text-white">
+                        <!-- Populated by JS -->
+                    </div>
+                    <svg id="bottleneckChevron" class="w-5 h-5 text-gray-600 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </button>
+            
+            <div id="bottleneckContent" class="px-6 pb-6">
+                <!-- Key Insights Bar -->
+                <div id="keyInsights" class="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                    <!-- Populated by JavaScript -->
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm bg-white border border-gray-200 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-blue-100 to-purple-100 border-b-2 border-blue-300">
+                                <th class="text-left py-3 px-4 font-bold text-gray-800">Barrier Type</th>
+                                <th class="text-center py-3 px-4 font-bold text-gray-800">Impact</th>
+                                <th class="text-center py-3 px-4 font-bold text-gray-800">Avg Days Stuck</th>
+                                <th class="text-center py-3 px-4 font-bold text-gray-800">Actions</th>
+                                <th class="text-left py-3 px-4 font-bold text-gray-800">System-Level Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bottleneckTableBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Health Systems Insight -->
+                <div id="systemsInsight" class="mt-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-300 rounded-lg">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Referral Detail Modal -->
+    <div id="referralModal" class="modal">
+        <div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full m-4 flex flex-col" style="max-height: 90vh;">
+            <div class="bg-blue-600 text-white px-6 py-4 flex justify-between items-center flex-shrink-0">
+                <h3 class="text-xl font-bold">Referral Details</h3>
+                <button onclick="closeModal()" class="text-white hover:text-gray-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="modalContent" class="p-6 overflow-y-auto flex-1">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATA STRUCTURES
+        // ============================================
+
+        // Real Hospital Data
+        const hospitals = [
+            {id:"220001",name:"UMASS MEMORIAL HEALTHALLIANCE HOSPITALS",city:"LEOMINSTER",county:"WORCESTER",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Other",emergency:"Yes",rating:"3"},
+            {id:"220002",name:"MOUNT AUBURN HOSPITAL",city:"CAMBRIDGE",county:"MIDDLESEX",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"4"},
+            {id:"220008",name:"STURDY MEMORIAL HOSPITAL",city:"ATTLEBORO",county:"BRISTOL",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Other",emergency:"Yes",rating:"3"},
+            {id:"220010",name:"MERRIMACK HEALTH LAWRENCE HOSPITAL",city:"LAWRENCE",county:"ESSEX",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"2"},
+            {id:"220011",name:"CAMBRIDGE HEALTH ALLIANCE",city:"CAMBRIDGE",county:"MIDDLESEX",type:"Acute Care Hospitals",ownership:"Government - Local",emergency:"Yes",rating:"3"},
+            {id:"220012",name:"CAPE COD HOSPITAL",city:"HYANNIS",county:"BARNSTABLE",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"2"},
+            {id:"220015",name:"COOLEY DICKINSON HOSPITAL INC,THE",city:"NORTHAMPTON",county:"HAMPSHIRE",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"2"},
+            {id:"220016",name:"BAYSTATE FRANKLIN MEDICAL CENTER",city:"GREENFIELD",county:"FRANKLIN",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"3"},
+            {id:"220017",name:"CARNEY HOSPITAL",city:"BOSTON",county:"SUFFOLK",type:"Acute Care Hospitals",ownership:"Proprietary",emergency:"Yes",rating:"Not Available"},
+            {id:"220019",name:"UMASS MEMORIAL HEALTH - HARRINGTON HOSPITAL",city:"SOUTHBRIDGE",county:"WORCESTER",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"3"},
+            {id:"220020",name:"SAINT ANNE'S HOSPITAL",city:"FALL RIVER",county:"BRISTOL",type:"Acute Care Hospitals",ownership:"Proprietary",emergency:"Yes",rating:"3"},
+            {id:"220024",name:"HOLYOKE MEDICAL CENTER",city:"HOLYOKE",county:"HAMPDEN",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"4"},
+            {id:"220029",name:"ANNA JAQUES HOSPITAL",city:"NEWBURYPORT",county:"ESSEX",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"3"},
+            {id:"220030",name:"BAYSTATE WING HOSPITAL",city:"PALMER",county:"HAMPDEN",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Other",emergency:"Yes",rating:"4"},
+            {id:"220031",name:"BOSTON MEDICAL CENTER",city:"BOSTON",county:"SUFFOLK",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"3"},
+            {id:"220071",name:"MASSACHUSETTS GENERAL HOSPITAL",city:"BOSTON",county:"SUFFOLK",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"5"},
+            {id:"220110",name:"BRIGHAM AND WOMEN'S HOSPITAL",city:"BOSTON",county:"SUFFOLK",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"5"},
+            {id:"220116",name:"TUFTS MEDICAL CENTER",city:"BOSTON",county:"SUFFOLK",type:"Acute Care Hospitals",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"2"},
+            {id:"223302",name:"BOSTON CHILDREN'S HOSPITAL",city:"BOSTON",county:"SUFFOLK",type:"Childrens",ownership:"Voluntary non-profit - Private",emergency:"Yes",rating:"Not Available"},
+            {id:"224007",name:"MCLEAN HOSPITAL CORPORATION",city:"BELMONT",county:"MIDDLESEX",type:"Psychiatric",ownership:"Voluntary non-profit - Private",emergency:"No",rating:"Not Available"}
+        ];
+
+        // Synthetic Patient Referrals (25 cases)
+        const referrals = [
+            {
+                id: "REF001",
+                patientName: "Maria Gonzalez",
+                age: 67,
+                primaryCare: "Springfield Community Health",
+                referredTo: "BAYSTATE MEDICAL CENTER",
+                specialty: "Cardiology",
+                reason: "Persistent chest pain, abnormal ECG",
+                referralDate: "2026-09-15",
+                status: "Issued",
+                barriers: ["transportation", "language"],
+                distance: 45,
+                insurance: "MassHealth",
+                language: "Spanish",
+                attempts: 3
+            },
+            {
+                id: "REF002",
+                patientName: "James Chen",
+                age: 52,
+                primaryCare: "Boston Primary Care Associates",
+                referredTo: "MASSACHUSETTS GENERAL HOSPITAL",
+                specialty: "Orthopedics",
+                reason: "Chronic knee pain, possible surgery needed",
+                referralDate: "2026-10-01",
+                status: "Scheduled",
+                scheduledDate: "2026-11-15",
+                barriers: [],
+                distance: 8,
+                insurance: "Blue Cross Blue Shield",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF003",
+                patientName: "Patricia O'Brien",
+                age: 45,
+                primaryCare: "Worcester Family Medicine",
+                referredTo: "UMASS MEMORIAL MEDICAL CENTER/UNIVERSITY CAMPUS",
+                specialty: "Endocrinology",
+                reason: "Uncontrolled diabetes, A1C 9.2",
+                referralDate: "2026-09-20",
+                status: "Completed",
+                scheduledDate: "2026-10-10",
+                completedDate: "2026-10-10",
+                barriers: [],
+                distance: 12,
+                insurance: "Medicare",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF004",
+                patientName: "Mohammed Hassan",
+                age: 38,
+                primaryCare: "Lawrence Community Clinic",
+                referredTo: "MERRIMACK HEALTH LAWRENCE HOSPITAL",
+                specialty: "Gastroenterology",
+                reason: "Chronic abdominal pain, suspected IBD",
+                referralDate: "2026-09-28",
+                status: "Issued",
+                barriers: ["insurance", "communication"],
+                distance: 5,
+                insurance: "Pending Verification",
+                language: "Arabic",
+                attempts: 4
+            },
+            {
+                id: "REF005",
+                patientName: "Linda Washington",
+                age: 71,
+                primaryCare: "Boston Medical Center Primary Care",
+                referredTo: "BRIGHAM AND WOMEN'S HOSPITAL",
+                specialty: "Neurology",
+                reason: "Memory loss, possible dementia workup",
+                referralDate: "2026-10-05",
+                status: "Confirmed",
+                scheduledDate: "2026-11-20",
+                barriers: [],
+                distance: 6,
+                insurance: "Medicare + Medicaid",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF006",
+                patientName: "Carlos Rivera",
+                age: 55,
+                primaryCare: "Holyoke Health Center",
+                referredTo: "HOLYOKE MEDICAL CENTER",
+                specialty: "Nephrology",
+                reason: "Stage 3 CKD, declining kidney function",
+                referralDate: "2026-09-12",
+                status: "Completed",
+                scheduledDate: "2026-09-28",
+                completedDate: "2026-09-28",
+                barriers: [],
+                distance: 4,
+                insurance: "MassHealth",
+                language: "Spanish",
+                attempts: 1
+            },
+            {
+                id: "REF007",
+                patientName: "Sarah Kim",
+                age: 29,
+                primaryCare: "Cambridge Health Alliance Primary Care",
+                referredTo: "MOUNT AUBURN HOSPITAL",
+                specialty: "Dermatology",
+                reason: "Suspicious mole, family history melanoma",
+                referralDate: "2026-10-08",
+                status: "Scheduled",
+                scheduledDate: "2026-11-05",
+                barriers: [],
+                distance: 7,
+                insurance: "Harvard Pilgrim",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF008",
+                patientName: "Robert Johnson",
+                age: 63,
+                primaryCare: "Cape Cod Community Health",
+                referredTo: "CAPE COD HOSPITAL",
+                specialty: "Pulmonology",
+                reason: "COPD exacerbation, persistent cough",
+                referralDate: "2026-09-25",
+                status: "Issued",
+                barriers: ["scheduling"],
+                distance: 22,
+                insurance: "Medicare",
+                language: "English",
+                attempts: 2,
+                waitTime: 45
+            },
+            {
+                id: "REF009",
+                patientName: "Anh Nguyen",
+                age: 41,
+                primaryCare: "Lowell Community Health",
+                referredTo: "LOWELL GENERAL HOSPITAL",
+                specialty: "Rheumatology",
+                reason: "Suspected rheumatoid arthritis",
+                referralDate: "2026-10-02",
+                status: "Confirmed",
+                scheduledDate: "2026-11-18",
+                barriers: [],
+                distance: 6,
+                insurance: "Tufts Health Plan",
+                language: "Vietnamese",
+                attempts: 2
+            },
+            {
+                id: "REF010",
+                patientName: "Elizabeth Murphy",
+                age: 58,
+                primaryCare: "New Bedford Family Practice",
+                referredTo: "SOUTHCOAST HOSPITALS GROUP",
+                specialty: "Oncology",
+                reason: "Abnormal mammogram, biopsy needed",
+                referralDate: "2026-09-18",
+                status: "Completed",
+                scheduledDate: "2026-09-30",
+                completedDate: "2026-09-30",
+                barriers: [],
+                distance: 9,
+                insurance: "Blue Cross Blue Shield",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF011",
+                patientName: "David Martinez",
+                age: 49,
+                primaryCare: "Springfield Health Center",
+                referredTo: "MERCY MEDICAL CTR",
+                specialty: "Cardiology",
+                reason: "High blood pressure, resistant to treatment",
+                referralDate: "2026-10-10",
+                status: "Scheduled",
+                scheduledDate: "2026-11-12",
+                barriers: [],
+                distance: 8,
+                insurance: "MassHealth",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF012",
+                patientName: "Fatima Ahmed",
+                age: 34,
+                primaryCare: "Worcester Community Clinic",
+                referredTo: "ST VINCENT HOSPITAL",
+                specialty: "Obstetrics",
+                reason: "High-risk pregnancy, gestational diabetes",
+                referralDate: "2026-09-22",
+                status: "Issued",
+                barriers: ["transportation", "communication"],
+                distance: 18,
+                insurance: "MassHealth",
+                language: "Somali",
+                attempts: 5
+            },
+            {
+                id: "REF013",
+                patientName: "Thomas Anderson",
+                age: 76,
+                primaryCare: "Newton Primary Care",
+                referredTo: "NEWTON-WELLESLEY HOSPITAL",
+                specialty: "Urology",
+                reason: "Elevated PSA, possible prostate cancer",
+                referralDate: "2026-10-01",
+                status: "Completed",
+                scheduledDate: "2026-10-15",
+                completedDate: "2026-10-15",
+                barriers: [],
+                distance: 5,
+                insurance: "Medicare",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF014",
+                patientName: "Lisa Patel",
+                age: 44,
+                primaryCare: "Framingham Family Medicine",
+                referredTo: "METROWEST MEDICAL CENTER",
+                specialty: "Gastroenterology",
+                reason: "Abnormal liver enzymes, hepatitis screening",
+                referralDate: "2026-09-30",
+                status: "Scheduled",
+                scheduledDate: "2026-11-08",
+                barriers: [],
+                distance: 7,
+                insurance: "Harvard Pilgrim",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF015",
+                patientName: "Michael Brown",
+                age: 61,
+                primaryCare: "Pittsfield Community Health",
+                referredTo: "BERKSHIRE MEDICAL CENTER",
+                specialty: "Cardiology",
+                reason: "Atrial fibrillation, anticoagulation management",
+                referralDate: "2026-10-03",
+                status: "Confirmed",
+                scheduledDate: "2026-11-10",
+                barriers: [],
+                distance: 11,
+                insurance: "Medicare",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF016",
+                patientName: "Jennifer Lee",
+                age: 37,
+                primaryCare: "Boston Medical Center",
+                referredTo: "TUFTS MEDICAL CENTER",
+                specialty: "Endocrinology",
+                reason: "Thyroid nodules, biopsy needed",
+                referralDate: "2026-09-19",
+                status: "Completed",
+                scheduledDate: "2026-10-05",
+                completedDate: "2026-10-05",
+                barriers: [],
+                distance: 4,
+                insurance: "BMC HealthNet",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF017",
+                patientName: "Jose Sanchez",
+                age: 68,
+                primaryCare: "Lawrence Family Health",
+                referredTo: "HOLY FAMILY HOSPITAL",
+                specialty: "Orthopedics",
+                reason: "Hip replacement evaluation",
+                referralDate: "2026-09-26",
+                status: "Issued",
+                barriers: ["scheduling", "insurance"],
+                distance: 14,
+                insurance: "Medicare Part B Only",
+                language: "Spanish",
+                attempts: 3,
+                waitTime: 60
+            },
+            {
+                id: "REF018",
+                patientName: "Nancy Wilson",
+                age: 53,
+                primaryCare: "Brockton Neighborhood Health",
+                referredTo: "SIGNATURE HEALTHCARE BROCKTON HOSPITAL",
+                specialty: "Neurology",
+                reason: "Migraine headaches, medication management",
+                referralDate: "2026-10-07",
+                status: "Scheduled",
+                scheduledDate: "2026-11-14",
+                barriers: [],
+                distance: 6,
+                insurance: "MassHealth",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF019",
+                patientName: "Wei Zhang",
+                age: 42,
+                primaryCare: "Cambridge Community Health",
+                referredTo: "CAMBRIDGE HEALTH ALLIANCE",
+                specialty: "Psychiatry",
+                reason: "Treatment-resistant depression",
+                referralDate: "2026-09-29",
+                status: "Issued",
+                barriers: ["communication"],
+                distance: 3,
+                insurance: "MassHealth",
+                language: "Mandarin",
+                attempts: 4
+            },
+            {
+                id: "REF020",
+                patientName: "Karen Davis",
+                age: 59,
+                primaryCare: "Plymouth Health Center",
+                referredTo: "BETH ISRAEL DEACONESS HOSPITAL PLYMOUTH",
+                specialty: "Rheumatology",
+                reason: "Lupus workup, positive ANA",
+                referralDate: "2026-10-04",
+                status: "Confirmed",
+                scheduledDate: "2026-11-16",
+                barriers: [],
+                distance: 8,
+                insurance: "Blue Cross Blue Shield",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF021",
+                patientName: "Antonio Costa",
+                age: 72,
+                primaryCare: "Fall River Community Clinic",
+                referredTo: "SAINT ANNE'S HOSPITAL",
+                specialty: "Cardiology",
+                reason: "Heart failure management",
+                referralDate: "2026-09-17",
+                status: "Completed",
+                scheduledDate: "2026-10-01",
+                completedDate: "2026-10-01",
+                barriers: [],
+                distance: 5,
+                insurance: "Medicare + Medicaid",
+                language: "Portuguese",
+                attempts: 1
+            },
+            {
+                id: "REF022",
+                patientName: "Rebecca Taylor",
+                age: 46,
+                primaryCare: "Salem Family Practice",
+                referredTo: "NORTH SHORE MEDICAL CENTER -",
+                specialty: "Dermatology",
+                reason: "Severe psoriasis, biologic therapy evaluation",
+                referralDate: "2026-10-09",
+                status: "Scheduled",
+                scheduledDate: "2026-11-07",
+                barriers: [],
+                distance: 6,
+                insurance: "Tufts Health Plan",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF023",
+                patientName: "Hector Ramirez",
+                age: 56,
+                primaryCare: "Greenfield Health Services",
+                referredTo: "BAYSTATE FRANKLIN MEDICAL CENTER",
+                specialty: "Pulmonology",
+                reason: "Sleep apnea study needed",
+                referralDate: "2026-09-24",
+                status: "Issued",
+                barriers: ["transportation"],
+                distance: 38,
+                insurance: "MassHealth",
+                language: "Spanish",
+                attempts: 2
+            },
+            {
+                id: "REF024",
+                patientName: "Susan Miller",
+                age: 65,
+                primaryCare: "Winchester Family Medicine",
+                referredTo: "WINCHESTER HOSPITAL",
+                specialty: "Ophthalmology",
+                reason: "Cataracts, surgical evaluation",
+                referralDate: "2026-10-06",
+                status: "Completed",
+                scheduledDate: "2026-10-18",
+                completedDate: "2026-10-18",
+                barriers: [],
+                distance: 4,
+                insurance: "Medicare",
+                language: "English",
+                attempts: 1
+            },
+            {
+                id: "REF025",
+                patientName: "Thanh Le",
+                age: 39,
+                primaryCare: "Lowell Asian Health",
+                referredTo: "LOWELL GENERAL HOSPITAL",
+                specialty: "Gastroenterology",
+                reason: "Hepatitis B management",
+                referralDate: "2026-09-21",
+                status: "Scheduled",
+                scheduledDate: "2026-11-09",
+                barriers: [],
+                distance: 7,
+                insurance: "MassHealth",
+                language: "Vietnamese",
+                attempts: 1
+            }
+        ];
+
+        let selectedReferral = null;
+        let currentFilter = 'all';
+        
+        // ============================================
+        // LOCAL STORAGE & PERSISTENCE
+        // ============================================
+        
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('referall_referrals', JSON.stringify(referrals));
+                console.log('Data saved to localStorage');
+            } catch(e) {
+                console.error('Failed to save to localStorage:', e);
+            }
+        }
+        
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('referall_referrals');
+                if (saved) {
+                    const loaded = JSON.parse(saved);
+                    // Merge saved data with existing referrals
+                    loaded.forEach(savedRef => {
+                        const existing = referrals.find(r => r.id === savedRef.id);
+                        if (existing) {
+                            Object.assign(existing, savedRef);
+                        }
+                    });
+                    console.log('Data loaded from localStorage');
+                    return true;
+                }
+            } catch(e) {
+                console.error('Failed to load from localStorage:', e);
+            }
+            return false;
+        }
+        
+        // ============================================
+        // PRIORITY CALCULATION
+        // ============================================
+        
+        function calculatePriority(referral) {
+            if (referral.status === 'Completed') {
+                return { level: 'completed', score: 0, reason: 'Referral completed' };
+            }
+            
+            let score = 0;
+            let reasons = [];
+            
+            // Days since referral
+            const refDate = new Date(referral.referralDate);
+            const today = new Date();
+            const daysSince = Math.floor((today - refDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysSince > 30) {
+                score += 3;
+                reasons.push(`${daysSince} days since referral (>30 days)`);
+            } else if (daysSince > 14) {
+                score += 2;
+                reasons.push(`${daysSince} days since referral`);
+            } else if (daysSince > 7) {
+                score += 1;
+                reasons.push(`${daysSince} days since referral`);
+            }
+            
+            // Number of barriers
+            const barrierCount = referral.barriers.length;
+            if (barrierCount > 0) {
+                score += barrierCount * 2;
+                reasons.push(`${barrierCount} unresolved barrier${barrierCount > 1 ? 's' : ''}`);
+            }
+            
+            // Contact attempts
+            if (referral.attempts > 3) {
+                score += 3;
+                reasons.push(`${referral.attempts} unsuccessful contact attempts`);
+            } else if (referral.attempts > 2) {
+                score += 2;
+                reasons.push(`${referral.attempts} contact attempts`);
+            }
+            
+            // Scheduling status
+            if (referral.status === 'Issued' && daysSince > 7) {
+                score += 2;
+                reasons.push('Not yet scheduled after 7+ days');
+            }
+            
+            // Determine priority level
+            let level = 'low';
+            if (score >= 7) level = 'critical';
+            else if (score >= 5) level = 'high';
+            else if (score >= 3) level = 'medium';
+            
+            return {
+                level: level,
+                score: score,
+                reason: reasons.join('; ')
+            };
+        }
+        
+        // ============================================
+        // COORDINATION PLAN GENERATION
+        // ============================================
+        
+        function generateCoordinationPlan(referral) {
+            const plan = {
+                referralId: referral.id,
+                patientName: referral.patientName,
+                generatedAt: new Date().toISOString(),
+                barriers: [],
+                actions: [],
+                completed: []
+            };
+            
+            referral.barriers.forEach(barrierType => {
+                const barrierPlan = generateBarrierAction(barrierType, referral);
+                if (barrierPlan) {
+                    plan.barriers.push(barrierType);
+                    plan.actions.push(...barrierPlan);
+                }
+            });
+            
+            return plan;
+        }
+        
+        function generateBarrierAction(barrierType, referral) {
+            const actions = [];
+            
+            if (barrierType === 'transportation') {
+                actions.push({
+                    id: `${referral.id}-transport-1`,
+                    barrier: 'transportation',
+                    action: `Contact ${referral.insurance} to arrange medical transportation`,
+                    details: `Patient lives ${referral.distance} miles from facility`,
+                    completed: false
+                });
+                actions.push({
+                    id: `${referral.id}-transport-2`,
+                    barrier: 'transportation',
+                    action: 'Explore local medical transport services or volunteer driver programs',
+                    details: 'Alternative if insurance transport unavailable',
+                    completed: false
+                });
+            }
+            
+            if (barrierType === 'communication' || barrierType === 'language') {
+                actions.push({
+                    id: `${referral.id}-comm-1`,
+                    barrier: 'communication',
+                    action: `Arrange professional ${referral.language} interpreter for all appointments`,
+                    details: `Patient's primary language: ${referral.language}`,
+                    completed: false
+                });
+                actions.push({
+                    id: `${referral.id}-comm-2`,
+                    barrier: 'communication',
+                    action: 'Send appointment confirmation and materials in patient\'s language',
+                    details: 'Use translated materials from language services',
+                    completed: false
+                });
+                actions.push({
+                    id: `${referral.id}-comm-3`,
+                    barrier: 'communication',
+                    action: 'Attempt contact through consented family member or community health worker',
+                    details: `${referral.attempts} previous attempts unsuccessful`,
+                    completed: false
+                });
+            }
+            
+            if (barrierType === 'insurance') {
+                actions.push({
+                    id: `${referral.id}-ins-1`,
+                    barrier: 'insurance',
+                    action: `Verify coverage with ${referral.insurance} immediately`,
+                    details: 'Appointment cannot proceed without verification',
+                    completed: false
+                });
+                actions.push({
+                    id: `${referral.id}-ins-2`,
+                    barrier: 'insurance',
+                    action: 'Assist with prior authorization if required',
+                    details: 'Check if specialty requires pre-approval',
+                    completed: false
+                });
+                actions.push({
+                    id: `${referral.id}-ins-3`,
+                    barrier: 'insurance',
+                    action: 'Explore financial assistance programs if coverage denied',
+                    details: 'Hospital charity care or sliding scale options',
+                    completed: false
+                });
+            }
+            
+            if (barrierType === 'scheduling') {
+                actions.push({
+                    id: `${referral.id}-sched-1`,
+                    barrier: 'scheduling',
+                    action: `Contact ${referral.referredTo} to expedite appointment`,
+                    details: `Current wait time: ${referral.waitTime || 'Unknown'} days`,
+                    completed: false
+                });
+                actions.push({
+                    id: `${referral.id}-sched-2`,
+                    barrier: 'scheduling',
+                    action: 'Request placement on cancellation list',
+                    details: 'May reduce wait time significantly',
+                    completed: false
+                });
+                actions.push({
+                    id: `${referral.id}-sched-3`,
+                    barrier: 'scheduling',
+                    action: 'Explore alternative facilities with same specialty',
+                    details: 'If wait time affects patient safety',
+                    completed: false
+                });
+            }
+            
+            return actions;
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded! Starting initialization...');
+            try {
+                // Load saved data from localStorage
+                loadFromLocalStorage();
+                
+                initializeFilters();
+                renderHospitals();
+                renderReferrals();
+                updateStats();
+                updateImpactMetrics();
+                console.log('About to call renderBarrierSummary...');
+                // Call immediately and also with delay as backup
+                renderBarrierSummary();
+                setTimeout(renderBarrierSummary, 500);
+                
+                // Initialize bottleneck section as collapsed
+                document.getElementById('bottleneckContent').style.display = 'none';
+                document.getElementById('bottleneckChevron').style.transform = 'rotate(-90deg)';
+                
+                console.log('Initialization complete!');
+            } catch(e) {
+                console.error('Error during initialization:', e);
+            }
+        });
+
+        // ============================================
+        // FILTER MANAGEMENT
+        // ============================================
+
+        function initializeFilters() {
+            // Populate county filter
+            const counties = [...new Set(hospitals.map(h => h.county))].sort();
+            const countySelect = document.getElementById('countyFilter');
+            counties.forEach(county => {
+                const option = document.createElement('option');
+                option.value = county;
+                option.textContent = county;
+                countySelect.appendChild(option);
+            });
+
+            // Populate type filter
+            const types = [...new Set(hospitals.map(h => h.type))].sort();
+            const typeSelect = document.getElementById('typeFilter');
+            types.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeSelect.appendChild(option);
+            });
+
+            // Add event listeners
+            countySelect.addEventListener('change', renderHospitals);
+            typeSelect.addEventListener('change', renderHospitals);
+            document.getElementById('emergencyFilter').addEventListener('change', renderHospitals);
+        }
+
+        function filterStatus(status) {
+            currentFilter = status;
+            renderReferrals();
+        }
+        
+        function toggleBottleneckSection() {
+            const content = document.getElementById('bottleneckContent');
+            const chevron = document.getElementById('bottleneckChevron');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                chevron.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'none';
+                chevron.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        // ============================================
+        // HOSPITAL RENDERING
+        // ============================================
+
+        function renderHospitals() {
+            const countyFilter = document.getElementById('countyFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const emergencyFilter = document.getElementById('emergencyFilter').value;
+
+            let filtered = hospitals.filter(h => {
+                if (countyFilter && h.county !== countyFilter) return false;
+                if (typeFilter && h.type !== typeFilter) return false;
+                if (emergencyFilter && h.emergency !== emergencyFilter) return false;
+                return true;
+            });
+
+            const hospitalList = document.getElementById('hospitalList');
+            hospitalList.innerHTML = filtered.map(h => `
+                <div class="border border-gray-200 rounded p-2 hover:bg-gray-50 cursor-pointer text-xs">
+                    <div class="font-semibold text-gray-800 mb-1 text-xs leading-tight">${h.name}</div>
+                    <div class="text-gray-600">${h.city}, ${h.county}</div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-gray-500">${h.type}</span>
+                        ${h.rating !== 'Not Available' ? 
+                            `<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs">★ ${h.rating}</span>` : 
+                            `<span class="text-gray-400 text-xs">No Rating</span>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // REFERRAL RENDERING
+        // ============================================
+        
+        function renderBottleneckSummary() {
+            const activeReferrals = referrals.filter(r => r.status !== 'Completed');
+            
+            // Count barriers across all active referrals
+            const barrierStats = {};
+            
+            activeReferrals.forEach(r => {
+                r.barriers.forEach(barrier => {
+                    if (!barrierStats[barrier]) {
+                        barrierStats[barrier] = {
+                            count: 0,
+                            referrals: [],
+                            actionsInitiated: 0,
+                            resolved: 0,
+                            totalDaysStuck: 0,
+                            avgDaysStuck: 0
+                        };
+                    }
+                    barrierStats[barrier].count++;
+                    barrierStats[barrier].referrals.push(r);
+                    
+                    // Calculate days stuck
+                    const refDate = new Date(r.referralDate);
+                    const today = new Date();
+                    const daysSince = Math.floor((today - refDate) / (1000 * 60 * 60 * 24));
+                    barrierStats[barrier].totalDaysStuck += daysSince;
+                    
+                    // Count actions initiated for this barrier type
+                    if (r.coordinationPlan && r.coordinationPlan.actions) {
+                        const barrierActions = r.coordinationPlan.actions.filter(a => a.barrier === barrier);
+                        barrierStats[barrier].actionsInitiated += barrierActions.length;
+                    }
+                    
+                    // Count resolved barriers
+                    if (r.barriersResolved && r.barriersResolved.includes(barrier)) {
+                        barrierStats[barrier].resolved++;
+                    }
+                });
+            });
+            
+            // Calculate averages
+            Object.keys(barrierStats).forEach(barrier => {
+                barrierStats[barrier].avgDaysStuck = Math.round(
+                    barrierStats[barrier].totalDaysStuck / barrierStats[barrier].count
+                );
+            });
+            
+            const tbody = document.getElementById('bottleneckTableBody');
+            const keyInsights = document.getElementById('keyInsights');
+            const systemsInsight = document.getElementById('systemsInsight');
+            const summaryBadge = document.getElementById('bottleneckSummaryBadge');
+            
+            if (Object.keys(barrierStats).length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-6 text-gray-500 text-sm">
+                            <div class="flex flex-col items-center">
+                                <svg class="w-12 h-12 text-green-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="font-semibold">✓ No active barriers detected across referrals</span>
+                                <span class="text-xs mt-1">All referrals progressing smoothly</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                keyInsights.innerHTML = '<div class="text-center text-green-600 font-semibold text-sm">✓ System operating efficiently</div>';
+                systemsInsight.innerHTML = '<div class="text-sm text-gray-600 text-center">No systemic bottlenecks identified. Continue monitoring referral flow.</div>';
+                summaryBadge.textContent = '0 Barriers';
+                return;
+            }
+            
+            // Sort by count (most affected first)
+            const sortedBarriers = Object.entries(barrierStats).sort((a, b) => b[1].count - a[1].count);
+            
+            // Calculate total impact
+            const totalAffected = sortedBarriers.reduce((sum, [_, stats]) => sum + stats.count, 0);
+            summaryBadge.textContent = `${totalAffected} Patients Affected`;
+            
+            // Generate key insights
+            const topBarrier = sortedBarriers[0];
+            const avgWaitAll = Math.round(
+                sortedBarriers.reduce((sum, [_, stats]) => sum + stats.avgDaysStuck, 0) / sortedBarriers.length
+            );
+            
+            keyInsights.innerHTML = `
+                <div class="flex items-center justify-between text-xs">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-1 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="font-semibold text-gray-700">Primary Bottleneck:</span>
+                        <span class="ml-1 text-gray-900">${capitalizeFirst(topBarrier[0])} affecting ${topBarrier[1].count} referrals</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-1 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="font-semibold text-gray-700">Avg Wait:</span>
+                        <span class="ml-1 text-gray-900">${avgWaitAll} days with unresolved barriers</span>
+                    </div>
+                </div>
+            `;
+            
+            // Generate system-level solutions
+            const systemSolutions = {
+                'transportation': {
+                    solution: 'Partner with medical transportation services or ride-share programs',
+                    impact: 'Reduce no-show rates, improve access to specialty care',
+                    stakeholders: 'Health system leadership, community health workers, transportation vendors'
+                },
+                'communication': {
+                    solution: 'Expand interpreter services and multilingual care coordination staff',
+                    impact: 'Improve patient engagement, reduce communication-related delays',
+                    stakeholders: 'HR, care coordination leadership, language services department'
+                },
+                'language': {
+                    solution: 'Expand interpreter services and multilingual care coordination staff',
+                    impact: 'Improve patient engagement, reduce communication-related delays',
+                    stakeholders: 'HR, care coordination leadership, language services department'
+                },
+                'insurance': {
+                    solution: 'Streamline insurance verification process, expand financial counseling',
+                    impact: 'Reduce pre-authorization delays, improve revenue cycle',
+                    stakeholders: 'Revenue cycle management, insurance liaison team, financial counselors'
+                },
+                'scheduling': {
+                    solution: 'Increase specialist capacity or establish telemedicine options',
+                    impact: 'Reduce wait times, improve access to high-demand specialties',
+                    stakeholders: 'Medical staff leadership, specialty department chairs, telehealth coordinators'
+                }
+            };
+            
+            const topSolution = systemSolutions[topBarrier[0]];
+            systemsInsight.innerHTML = `
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 mr-2 text-purple-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                    <div class="flex-1">
+                        <div class="font-bold text-sm text-purple-900 mb-1">💡 Health Systems Recommendation</div>
+                        <div class="text-sm text-gray-800 mb-2">
+                            <strong>Priority Action:</strong> ${topSolution.solution}
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="bg-white rounded p-2 border border-purple-200">
+                                <div class="text-purple-700 font-semibold mb-1">Expected Impact</div>
+                                <div class="text-gray-700">${topSolution.impact}</div>
+                            </div>
+                            <div class="bg-white rounded p-2 border border-purple-200">
+                                <div class="text-purple-700 font-semibold mb-1">Key Stakeholders</div>
+                                <div class="text-gray-700">${topSolution.stakeholders}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            tbody.innerHTML = sortedBarriers.map(([barrier, stats]) => {
+                const barrierIcon = {
+                    'transportation': '🚗',
+                    'communication': '💬',
+                    'language': '💬',
+                    'insurance': '💳',
+                    'scheduling': '📅'
+                }[barrier] || '⚠️';
+                
+                const resolvedPercent = stats.count > 0 ? Math.round((stats.resolved / stats.count) * 100) : 0;
+                const statusColor = resolvedPercent > 50 ? 'text-green-600' : resolvedPercent > 0 ? 'text-yellow-600' : 'text-red-600';
+                
+                // Impact severity based on count and days
+                const impactScore = (stats.count * stats.avgDaysStuck) / 10;
+                let impactLevel = 'Low';
+                let impactColor = 'bg-yellow-100 text-yellow-800';
+                if (impactScore > 100) {
+                    impactLevel = 'Critical';
+                    impactColor = 'bg-red-100 text-red-800';
+                } else if (impactScore > 50) {
+                    impactLevel = 'High';
+                    impactColor = 'bg-orange-100 text-orange-800';
+                } else if (impactScore > 25) {
+                    impactLevel = 'Moderate';
+                    impactColor = 'bg-yellow-100 text-yellow-800';
+                }
+                
+                const solution = systemSolutions[barrier];
+                
+                return `
+                    <tr class="border-b border-gray-200 hover:bg-blue-50 transition-colors">
+                        <td class="py-3 px-3">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-2">${barrierIcon}</span>
+                                <div>
+                                    <div class="font-semibold text-gray-800">${capitalizeFirst(barrier)}</div>
+                                    <div class="text-xs text-gray-500">${stats.referrals.length} active referral${stats.referrals.length !== 1 ? 's' : ''}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-3 text-center">
+                            <span class="inline-block ${impactColor} px-2 py-1 rounded-full font-bold text-xs">
+                                ${impactLevel}
+                            </span>
+                            <div class="text-xs text-gray-500 mt-1">${stats.count} patient${stats.count !== 1 ? 's' : ''}</div>
+                        </td>
+                        <td class="py-3 px-3 text-center">
+                            <div class="text-lg font-bold ${stats.avgDaysStuck > 30 ? 'text-red-600' : stats.avgDaysStuck > 14 ? 'text-orange-600' : 'text-gray-700'}">
+                                ${stats.avgDaysStuck}
+                            </div>
+                            <div class="text-xs text-gray-500">days avg</div>
+                        </td>
+                        <td class="py-3 px-3 text-center">
+                            <div class="text-lg font-semibold text-blue-600">
+                                ${stats.actionsInitiated || '—'}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                ${stats.actionsInitiated > 0 ? 'initiated' : 'none yet'}
+                            </div>
+                        </td>
+                        <td class="py-3 px-3">
+                            <div class="text-xs text-gray-800 font-medium">${solution.solution}</div>
+                            <div class="text-xs text-gray-500 mt-1 italic">${solution.impact}</div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderReferrals() {
+            let filtered = referrals;
+            
+            if (currentFilter === 'stuck') {
+                filtered = referrals.filter(r => r.barriers.length > 0 && r.status !== 'Completed');
+            } else if (currentFilter === 'active') {
+                filtered = referrals.filter(r => r.status !== 'Completed' && r.status !== 'Issued');
+            } else if (currentFilter === 'completed') {
+                filtered = referrals.filter(r => r.status === 'Completed');
+            }
+
+            const referralList = document.getElementById('referralList');
+            referralList.innerHTML = filtered.map(r => {
+                const statusColor = getStatusColor(r.status);
+                const hasBarriers = r.barriers.length > 0 && r.status !== 'Completed';
+                
+                // Calculate priority
+                const priority = calculatePriority(r);
+                const priorityColor = getPriorityColor(priority.level);
+                const showPriority = priority.level !== 'completed' && priority.level !== 'low';
+                
+                return `
+                    <div class="referral-card border-l-4 ${statusColor.border} bg-white border border-gray-200 rounded p-3 cursor-pointer hover:shadow-md transition-all"
+                         onclick="selectReferral('${r.id}')">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-gray-800">${r.patientName}, ${r.age}</div>
+                                    ${showPriority ? `
+                                        <span class="tooltip">
+                                            <span class="${priorityColor.bg} ${priorityColor.text} px-2 py-0.5 rounded text-xs font-bold uppercase">
+                                                ${priorityColor.emoji} ${priorityColor.label}
+                                            </span>
+                                            <span class="tooltiptext">${getPriorityTooltip(r)}</span>
+                                        </span>
+                                    ` : ''}
+                                </div>
+                                <div class="text-xs text-gray-600">${r.id}</div>
+                            </div>
+                            <span class="status-badge ${statusColor.bg} ${statusColor.text} px-2 py-1 rounded text-xs font-semibold">
+                                ${r.status}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-700 mb-2">
+                            <strong>${r.specialty}</strong> - ${r.referredTo}
+                        </div>
+                        <div class="text-xs text-gray-600 mb-2">${r.reason}</div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-gray-500">Referred: ${formatDate(r.referralDate)}</span>
+                            ${hasBarriers ? 
+                                `<span class="barrier-icon bg-red-100 text-red-700 px-2 py-1 rounded font-semibold">
+                                    ⚠ ${r.barriers.length} Barrier${r.barriers.length > 1 ? 's' : ''}
+                                </span>` : 
+                                ''
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Update bottleneck summary table
+            renderBottleneckSummary();
+        }
+
+        function selectReferral(id) {
+            selectedReferral = referrals.find(r => r.id === id);
+            renderBarrierPanel(selectedReferral);
+            showModal(selectedReferral);
+        }
+
+        // ============================================
+        // BARRIER ANALYSIS
+        // ============================================
+
+        function renderBarrierSummary() {
+            console.log('renderBarrierSummary called!');
+            const barrierPanel = document.getElementById('barrierPanel');
+            
+            // Calculate barrier statistics from stuck referrals
+            const stuckReferrals = referrals.filter(r => r.barriers.length > 0 && r.status !== 'Completed');
+            console.log('Stuck referrals found:', stuckReferrals.length);
+            const barrierCounts = {
+                transportation: 0,
+                communication: 0,
+                language: 0,
+                insurance: 0,
+                scheduling: 0
+            };
+            
+            stuckReferrals.forEach(r => {
+                r.barriers.forEach(b => {
+                    if (barrierCounts[b] !== undefined) {
+                        barrierCounts[b]++;
+                    }
+                });
+            });
+            
+            // Combine communication and language
+            const totalCommunication = barrierCounts.communication + barrierCounts.language;
+            
+            console.log('Barrier counts:', barrierCounts);
+            console.log('Total communication:', totalCommunication);
+            
+            barrierPanel.innerHTML = `
+                <div class="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
+                    <h3 class="font-bold text-blue-900 mb-2">📊 System-Level Intelligence</h3>
+                    <p class="text-sm text-blue-800">Barrier patterns across ${stuckReferrals.length} stuck referral${stuckReferrals.length !== 1 ? 's' : ''}</p>
+                </div>
+                
+                <div class="space-y-3 mb-4">
+                    ${barrierCounts.transportation > 0 ? `
+                        <div class="bg-white border-l-4 border-orange-400 rounded p-3">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-2">🚗</span>
+                                    <span class="font-bold text-gray-800">Transportation</span>
+                                </div>
+                                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded font-bold text-sm">${barrierCounts.transportation}</span>
+                            </div>
+                            <p class="text-xs text-gray-600 ml-9">Distance >30 miles, no reliable transit</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${totalCommunication > 0 ? `
+                        <div class="bg-white border-l-4 border-purple-400 rounded p-3">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-2">💬</span>
+                                    <span class="font-bold text-gray-800">Communication</span>
+                                </div>
+                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded font-bold text-sm">${totalCommunication}</span>
+                            </div>
+                            <p class="text-xs text-gray-600 ml-9">Language barriers, missed contacts</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${barrierCounts.insurance > 0 ? `
+                        <div class="bg-white border-l-4 border-red-400 rounded p-3">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-2">💳</span>
+                                    <span class="font-bold text-gray-800">Insurance</span>
+                                </div>
+                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded font-bold text-sm">${barrierCounts.insurance}</span>
+                            </div>
+                            <p class="text-xs text-gray-600 ml-9">Coverage verification pending</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${barrierCounts.scheduling > 0 ? `
+                        <div class="bg-white border-l-4 border-yellow-400 rounded p-3">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-2">📅</span>
+                                    <span class="font-bold text-gray-800">Scheduling</span>
+                                </div>
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-bold text-sm">${barrierCounts.scheduling}</span>
+                            </div>
+                            <p class="text-xs text-gray-600 ml-9">Wait time >30 days</p>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                ${stuckReferrals.length > 0 ? `
+                    <div class="bg-indigo-50 border border-indigo-200 rounded p-3">
+                        <h4 class="font-semibold text-indigo-900 text-sm mb-2">💡 System Recommendations</h4>
+                        <ul class="text-xs text-indigo-800 space-y-1">
+                            ${barrierCounts.transportation > 0 ? `
+                                <li>• Consider medical transport partnership for ${barrierCounts.transportation} patient${barrierCounts.transportation !== 1 ? 's' : ''}</li>
+                            ` : ''}
+                            ${totalCommunication > 0 ? `
+                                <li>• Hire bilingual care coordinators or interpreter services for ${totalCommunication} patient${totalCommunication !== 1 ? 's' : ''}</li>
+                            ` : ''}
+                            ${barrierCounts.insurance > 0 ? `
+                                <li>• Expedite insurance verification process for ${barrierCounts.insurance} case${barrierCounts.insurance !== 1 ? 's' : ''}</li>
+                            ` : ''}
+                            ${barrierCounts.scheduling > 0 ? `
+                                <li>• Review specialist capacity and wait times for ${barrierCounts.scheduling} delayed referral${barrierCounts.scheduling !== 1 ? 's' : ''}</li>
+                            ` : ''}
+                        </ul>
+                    </div>
+                ` : `
+                    <div class="bg-green-50 border border-green-200 rounded p-4 text-center">
+                        <svg class="w-12 h-12 mx-auto text-green-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="font-bold text-green-800">No Stuck Referrals!</p>
+                        <p class="text-sm text-green-700 mt-1">All referrals progressing smoothly</p>
+                    </div>
+                `}
+                
+                <div class="mt-4 text-center">
+                    <p class="text-xs text-gray-500">Select a referral to view individual details</p>
+                </div>
+            `;
+        }
+
+        function renderBarrierPanel(referral) {
+            const barrierPanel = document.getElementById('barrierPanel');
+            
+            // NEW: Show system-level barrier summary when no referral is selected
+            if (!referral) {
+                renderBarrierSummary();
+                return;
+            }
+            
+            if (referral.barriers.length === 0) {
+                barrierPanel.innerHTML = `
+                    <div class="bg-green-50 border border-green-200 rounded p-4">
+                        <div class="flex items-center mb-2">
+                            <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <h3 class="font-bold text-green-800">No Barriers Detected</h3>
+                        </div>
+                        <p class="text-sm text-green-700">This referral is progressing smoothly.</p>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">Patient Info</h4>
+                        <div class="text-sm space-y-1">
+                            <div><strong>Name:</strong> ${referral.patientName}</div>
+                            <div><strong>Age:</strong> ${referral.age}</div>
+                            <div><strong>Insurance:</strong> ${referral.insurance}</div>
+                            <div><strong>Distance:</strong> ${referral.distance} miles</div>
+                            <div><strong>Language:</strong> ${referral.language}</div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const barrierDetails = generateBarrierDetails(referral);
+            
+            barrierPanel.innerHTML = `
+                <div class="bg-red-50 border border-red-200 rounded p-4 mb-4">
+                    <div class="flex items-center mb-2">
+                        <svg class="w-6 h-6 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <h3 class="font-bold text-red-800">${referral.barriers.length} Barrier${referral.barriers.length > 1 ? 's' : ''} Identified</h3>
+                    </div>
+                </div>
+
+                ${barrierDetails.map(barrier => `
+                    <div class="bg-white border border-gray-300 rounded p-3 mb-3">
+                        <div class="flex items-start mb-2">
+                            <span class="text-2xl mr-2">${barrier.icon}</span>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 mb-1">${barrier.title}</h4>
+                                <p class="text-sm text-gray-600 mb-2">${barrier.description}</p>
+                                <div class="bg-blue-50 border-l-4 border-blue-400 p-2 mb-2">
+                                    <div class="text-xs font-semibold text-blue-800 mb-1">Recommended Action:</div>
+                                    <div class="text-sm text-blue-900">${barrier.recommendation}</div>
+                                </div>
+                                <label class="flex items-center text-sm text-gray-700 cursor-pointer hover:text-gray-900">
+                                    <input type="checkbox" class="mr-2" onchange="markActionCompleted('${referral.id}', '${barrier.type}', this.checked)">
+                                    Mark action as completed
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+
+                <button onclick="updateReferralStatus('${referral.id}')" 
+                        class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 font-semibold">
+                    Update Referral Status
+                </button>
+            `;
+        }
+
+        function generateBarrierDetails(referral) {
+            const details = [];
+
+            if (referral.barriers.includes('transportation')) {
+                details.push({
+                    type: 'transportation',
+                    icon: '🚗',
+                    title: 'Transportation Barrier',
+                    description: `Patient lives ${referral.distance} miles from ${referral.referredTo}. No reliable transportation reported.`,
+                    recommendation: `Arrange medical transportation through ${referral.insurance} or contact local transportation services. Consider referring to closer facility if specialty available.`
+                });
+            }
+
+            if (referral.barriers.includes('insurance')) {
+                details.push({
+                    type: 'insurance',
+                    icon: '💳',
+                    title: 'Insurance/Coverage Issue',
+                    description: `Insurance verification pending: ${referral.insurance}. Appointment cannot be scheduled without confirmation.`,
+                    recommendation: `Contact patient's insurance immediately to verify coverage. Assist with prior authorization if required. Explore financial assistance programs if uninsured.`
+                });
+            }
+
+            if (referral.barriers.includes('scheduling')) {
+                details.push({
+                    type: 'scheduling',
+                    icon: '📅',
+                    title: 'Scheduling Delay',
+                    description: `Wait time for ${referral.specialty} appointment: ${referral.waitTime || 'Unknown'} days. ${referral.attempts} scheduling attempts made.`,
+                    recommendation: `Contact specialist office to expedite based on clinical urgency. Consider alternative facilities with shorter wait times. Request cancellation list placement.`
+                });
+            }
+
+            if (referral.barriers.includes('communication') || referral.barriers.includes('language')) {
+                details.push({
+                    type: 'communication',
+                    icon: '💬',
+                    title: 'Communication Barrier',
+                    description: `Patient primary language: ${referral.language}. ${referral.attempts} contact attempts made with no response.`,
+                    recommendation: `Arrange professional interpreter for all communications. Attempt contact through family member if consented. Send written materials in patient's language. Consider home visit by community health worker.`
+                });
+            }
+
+            return details;
+        }
+
+        function markActionCompleted(referralId, barrierType, completed) {
+            console.log(`Action ${completed ? 'completed' : 'uncompleted'} for ${referralId}, barrier: ${barrierType}`);
+            // In a real system, this would update the database
+        }
+
+        function updateReferralStatus(referralId) {
+            const referral = referrals.find(r => r.id === referralId);
+            if (!referral) return;
+
+            const statuses = ['Issued', 'Scheduled', 'Confirmed', 'Completed'];
+            const currentIndex = statuses.indexOf(referral.status);
+            
+            if (currentIndex < statuses.length - 1) {
+                referral.status = statuses[currentIndex + 1];
+                
+                if (referral.status === 'Scheduled' && !referral.scheduledDate) {
+                    const futureDate = new Date();
+                    futureDate.setDate(futureDate.getDate() + 21);
+                    referral.scheduledDate = futureDate.toISOString().split('T')[0];
+                }
+                
+                if (referral.status === 'Completed') {
+                    referral.completedDate = new Date().toISOString().split('T')[0];
+                    referral.barriers = []; // Clear barriers on completion
+                }
+                
+                renderReferrals();
+                updateStats();
+                renderBarrierPanel(referral);
+                showModal(referral);
+                
+                alert(`✅ Referral ${referralId} updated to: ${referral.status}`);
+            } else {
+                alert('This referral is already completed!');
+            }
+        }
+
+        // ============================================
+        // MODAL MANAGEMENT
+        // ============================================
+
+        function showModal(referral) {
+            const modal = document.getElementById('referralModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            const statusColor = getStatusColor(referral.status);
+            const timeline = generateTimeline(referral);
+            
+            modalContent.innerHTML = `
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-bold text-lg mb-3">Patient Information</h4>
+                        <dl class="space-y-2 text-sm">
+                            <div><dt class="font-semibold inline">Patient:</dt> <dd class="inline">${referral.patientName}, ${referral.age} years old</dd></div>
+                            <div><dt class="font-semibold inline">Primary Language:</dt> <dd class="inline">${referral.language}</dd></div>
+                            <div><dt class="font-semibold inline">Insurance:</dt> <dd class="inline">${referral.insurance}</dd></div>
+                            <div><dt class="font-semibold inline">Primary Care:</dt> <dd class="inline">${referral.primaryCare}</dd></div>
+                        </dl>
+
+                        <h4 class="font-bold text-lg mt-6 mb-3">Referral Details</h4>
+                        <dl class="space-y-2 text-sm">
+                            <div><dt class="font-semibold inline">Referral ID:</dt> <dd class="inline">${referral.id}</dd></div>
+                            <div><dt class="font-semibold inline">Specialty:</dt> <dd class="inline">${referral.specialty}</dd></div>
+                            <div><dt class="font-semibold inline">Facility:</dt> <dd class="inline">${referral.referredTo}</dd></div>
+                            <div><dt class="font-semibold inline">Distance:</dt> <dd class="inline">${referral.distance} miles</dd></div>
+                            <div><dt class="font-semibold inline">Reason:</dt> <dd class="inline">${referral.reason}</dd></div>
+                            <div><dt class="font-semibold inline">Contact Attempts:</dt> <dd class="inline">${referral.attempts}</dd></div>
+                        </dl>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-lg mb-3">Referral Timeline</h4>
+                        <div class="space-y-4">
+                            ${timeline.map(step => `
+                                <div class="timeline-step flex items-start">
+                                    <div class="w-6 h-6 rounded-full ${step.completed ? 'bg-green-500' : 'bg-gray-300'} flex items-center justify-center flex-shrink-0 z-10">
+                                        ${step.completed ? 
+                                            '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>' :
+                                            '<div class="w-2 h-2 bg-white rounded-full"></div>'
+                                        }
+                                    </div>
+                                    <div class="ml-4 flex-1">
+                                        <div class="font-semibold ${step.completed ? 'text-gray-900' : 'text-gray-500'}">${step.label}</div>
+                                        ${step.date ? `<div class="text-xs text-gray-600">${formatDate(step.date)}</div>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        ${referral.barriers.length > 0 ? `
+                            <div class="mt-6 bg-red-50 border border-red-200 rounded p-3">
+                                <h5 class="font-semibold text-red-800 mb-2">Active Barriers</h5>
+                                <ul class="list-disc list-inside text-sm text-red-700 space-y-1 mb-2">
+                                    ${referral.barriers.map(b => `<li>${capitalizeFirst(b)}</li>`).join('')}
+                                </ul>
+                                <div class="text-xs text-red-600 bg-red-100 rounded p-2 mb-3">
+                                    <strong>Note:</strong> Barriers remain active until confirmed resolved through follow-up. 
+                                    Completing coordination actions below is a step toward resolution but does not automatically resolve the barrier.
+                                </div>
+                                <button 
+                                    onclick="toggleCoordinationPlan('${referral.id}')" 
+                                    class="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition-colors"
+                                >
+                                    📋 Generate Coordination Plan
+                                </button>
+                                <div id="coordinationPlan-${referral.id}" class="hidden mt-4"></div>
+                            </div>
+                        ` : `
+                            <div class="mt-6 bg-green-50 border border-green-200 rounded p-3">
+                                <h5 class="font-semibold text-green-800 mb-1">✓ No Active Barriers</h5>
+                                <p class="text-sm text-green-700">Referral is progressing smoothly</p>
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('referralModal').classList.remove('active');
+        }
+        
+        function toggleCoordinationPlan(referralId) {
+            const referral = referrals.find(r => r.id === referralId);
+            if (!referral) return;
+            
+            const planDiv = document.getElementById(`coordinationPlan-${referralId}`);
+            
+            // Toggle visibility
+            if (!planDiv.classList.contains('hidden')) {
+                planDiv.classList.add('hidden');
+                return;
+            }
+            
+            // Generate the plan
+            const plan = generateCoordinationPlan(referral);
+            const priority = calculatePriority(referral);
+            const priorityColor = getPriorityColor(priority.level);
+            
+            // Store the plan in the referral object
+            referral.coordinationPlan = plan;
+            saveToLocalStorage();
+            
+            // Render the plan
+            planDiv.innerHTML = `
+                <div class="bg-white border-2 border-blue-500 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h6 class="font-bold text-gray-900 text-base">📋 Coordination Action Plan</h6>
+                        <span class="tooltip">
+                            <span class="${priorityColor.bg} ${priorityColor.text} px-2 py-1 rounded text-xs font-bold uppercase">
+                                ${priorityColor.emoji} ${priorityColor.label}
+                            </span>
+                            <span class="tooltiptext">${getPriorityTooltip(referral)}</span>
+                        </span>
+                    </div>
+                    
+                    <div class="text-xs text-gray-600 mb-3">
+                        Generated: ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    
+                    <div class="space-y-3">
+                        ${plan.actions.map((action, idx) => `
+                            <div class="bg-gray-50 border border-gray-300 rounded p-3">
+                                <div class="flex items-start">
+                                    <input 
+                                        type="checkbox" 
+                                        id="action-${action.id}" 
+                                        ${action.completed ? 'checked' : ''}
+                                        onchange="toggleAction('${referralId}', '${action.id}')"
+                                        class="mt-1 mr-3 w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                                    >
+                                    <div class="flex-1">
+                                        <label for="action-${action.id}" class="cursor-pointer">
+                                            <div class="font-semibold text-sm text-gray-900 ${action.completed ? 'line-through' : ''}">
+                                                ${idx + 1}. ${action.action}
+                                            </div>
+                                            <div class="text-xs text-gray-600 mt-1">
+                                                ${action.details}
+                                            </div>
+                                            <div class="text-xs text-blue-600 mt-1 font-medium">
+                                                🏷️ ${capitalizeFirst(action.barrier)} barrier
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded text-xs">
+                        <div class="font-semibold text-amber-900 mb-1">📌 Note on Actions vs. Barriers:</div>
+                        <div class="text-amber-800">
+                            Completing coordination actions does not automatically mean the barrier is resolved. 
+                            <strong>Barriers should only be marked as resolved when confirmed by follow-up.</strong>
+                            For example, calling for a ride service (action) ≠ patient has transportation (barrier resolved).
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 flex items-center justify-between text-xs text-gray-600">
+                        <span>${plan.completed.length} of ${plan.actions.length} actions completed</span>
+                        <span class="text-blue-600 font-medium">Progress: ${Math.round((plan.completed.length / plan.actions.length) * 100)}%</span>
+                    </div>
+                    
+                    <div class="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
+                        <strong>💡 Next Step:</strong> ${plan.actions.find(a => !a.completed)?.action || 'All actions completed!'}
+                    </div>
+                </div>
+            `;
+            
+            planDiv.classList.remove('hidden');
+        }
+        
+        function toggleAction(referralId, actionId) {
+            const referral = referrals.find(r => r.id === referralId);
+            if (!referral || !referral.coordinationPlan) return;
+            
+            const action = referral.coordinationPlan.actions.find(a => a.id === actionId);
+            if (!action) return;
+            
+            action.completed = !action.completed;
+            
+            // Update completed array
+            if (action.completed) {
+                if (!referral.coordinationPlan.completed.includes(actionId)) {
+                    referral.coordinationPlan.completed.push(actionId);
+                }
+            } else {
+                referral.coordinationPlan.completed = referral.coordinationPlan.completed.filter(id => id !== actionId);
+            }
+            
+            saveToLocalStorage();
+            updateImpactMetrics();
+            
+            // Re-render the plan to update progress
+            toggleCoordinationPlan(referralId); // Close
+            toggleCoordinationPlan(referralId); // Re-open with updated data
+        }
+
+        function generateTimeline(referral) {
+            const steps = [
+                {
+                    label: 'Referral Issued',
+                    date: referral.referralDate,
+                    completed: true
+                },
+                {
+                    label: 'Appointment Scheduled',
+                    date: referral.scheduledDate,
+                    completed: ['Scheduled', 'Confirmed', 'Completed'].includes(referral.status)
+                },
+                {
+                    label: 'Patient Confirmed',
+                    date: referral.scheduledDate,
+                    completed: ['Confirmed', 'Completed'].includes(referral.status)
+                },
+                {
+                    label: 'Consultation Completed',
+                    date: referral.completedDate,
+                    completed: referral.status === 'Completed'
+                }
+            ];
+            return steps;
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+
+        function updateStats() {
+            const active = referrals.filter(r => r.status !== 'Completed').length;
+            const completed = referrals.filter(r => r.status === 'Completed').length;
+            const stuck = referrals.filter(r => r.barriers.length > 0 && r.status !== 'Completed').length;
+            
+            // Calculate priority counts
+            const activeReferrals = referrals.filter(r => r.status !== 'Completed');
+            const criticalCount = activeReferrals.filter(r => calculatePriority(r).level === 'critical').length;
+            const highCount = activeReferrals.filter(r => calculatePriority(r).level === 'high').length;
+            const priorityText = criticalCount > 0 ? `${criticalCount} high admin priority` : 
+                                highCount > 0 ? `${highCount} medium admin priority` : 
+                                'All monitored';
+
+            document.getElementById('activeReferrals').textContent = active;
+            document.getElementById('stuckReferrals').textContent = stuck;
+            
+            // Update stuck referrals detail with priority info
+            const stuckDetail = document.getElementById('stuckReferrals').nextElementSibling;
+            if (stuckDetail && (criticalCount > 0 || highCount > 0)) {
+                stuckDetail.textContent = priorityText;
+                stuckDetail.classList.add('font-semibold');
+            }
+        }
+        
+        function updateImpactMetrics() {
+            const total = referrals.length;
+            const completed = referrals.filter(r => r.status === 'Completed').length;
+            const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            // Count actions completed (from coordination plans)
+            const actionsCompleted = referrals.reduce((sum, r) => {
+                if (r.coordinationPlan && r.coordinationPlan.completed) {
+                    return sum + r.coordinationPlan.completed.length;
+                }
+                return sum;
+            }, 0);
+            
+            // Count barriers confirmed resolved (barriers that have been explicitly marked as resolved)
+            // Note: This is separate from action completion - a barrier is only resolved when explicitly confirmed
+            const barriersResolved = referrals.reduce((sum, r) => {
+                if (r.barriersResolved && Array.isArray(r.barriersResolved)) {
+                    return sum + r.barriersResolved.length;
+                }
+                return sum;
+            }, 0);
+            
+            // Count active coordination plans
+            const activePlans = referrals.filter(r => r.coordinationPlan && r.status !== 'Completed').length;
+            
+            document.getElementById('completionRate').textContent = `${completionRate}%`;
+            document.getElementById('completionRateDetail').textContent = `${completed} of ${total} completed`;
+            document.getElementById('actionsCompleted').textContent = actionsCompleted;
+            document.getElementById('barriersResolved').textContent = barriersResolved;
+            document.getElementById('activePlans').textContent = activePlans;
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'Issued': { bg: 'bg-gray-200', text: 'text-gray-800', border: 'border-gray-400' },
+                'Scheduled': { bg: 'bg-yellow-200', text: 'text-yellow-800', border: 'border-yellow-400' },
+                'Confirmed': { bg: 'bg-blue-200', text: 'text-blue-800', border: 'border-blue-400' },
+                'Completed': { bg: 'bg-green-200', text: 'text-green-800', border: 'border-green-400' }
+            };
+            return colors[status] || colors['Issued'];
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+        
+        function getPriorityColor(level) {
+            const colors = {
+                'critical': { 
+                    bg: 'bg-red-100', 
+                    text: 'text-red-800',
+                    label: 'High Admin Priority',
+                    emoji: '🚨'
+                },
+                'high': { 
+                    bg: 'bg-orange-100', 
+                    text: 'text-orange-800',
+                    label: 'Medium Admin Priority',
+                    emoji: '⚡'
+                },
+                'medium': { 
+                    bg: 'bg-yellow-100', 
+                    text: 'text-yellow-800',
+                    label: 'Moderate Admin Priority',
+                    emoji: '⚠️'
+                },
+                'low': { 
+                    bg: 'bg-gray-100', 
+                    text: 'text-gray-600',
+                    label: 'Low Admin Priority',
+                    emoji: ''
+                },
+                'completed': { 
+                    bg: 'bg-green-100', 
+                    text: 'text-green-800',
+                    label: 'Completed',
+                    emoji: '✓'
+                }
+            };
+            return colors[level] || colors['low'];
+        }
+        
+        function getPriorityTooltip(referral) {
+            if (!referral) {
+                return 'Administrative priority based on referral coordination factors (days waiting, barriers, contact attempts). This is NOT a clinical urgency assessment. Clinical decisions should be made by healthcare providers based on patient medical status.';
+            }
+            
+            const priority = calculatePriority(referral);
+            const refDate = new Date(referral.referralDate);
+            const today = new Date();
+            const daysSince = Math.floor((today - refDate) / (1000 * 60 * 60 * 24));
+            
+            let reasons = [];
+            
+            // Build specific reason text
+            if (daysSince > 30) {
+                reasons.push(`outstanding for ${daysSince} days (>30 days)`);
+            } else if (daysSince > 14) {
+                reasons.push(`outstanding for ${daysSince} days (>14 days)`);
+            } else if (daysSince > 7) {
+                reasons.push(`outstanding for ${daysSince} days`);
+            }
+            
+            if (referral.barriers.length > 0) {
+                reasons.push(`${referral.barriers.length} unresolved barrier${referral.barriers.length > 1 ? 's' : ''} (${referral.barriers.join(', ')})`);
+            }
+            
+            if (referral.attempts > 3) {
+                reasons.push(`${referral.attempts} unsuccessful contact attempts`);
+            } else if (referral.attempts > 1) {
+                reasons.push(`${referral.attempts} contact attempts`);
+            }
+            
+            if (referral.status === 'Issued' && daysSince > 7) {
+                reasons.push('not yet scheduled after 7+ days');
+            }
+            
+            const reasonText = reasons.length > 0 ? 
+                `Prioritized because this referral has been ${reasons.join(', and has ')}.` :
+                'Standard administrative priority.';
+            
+            return `${reasonText}\n\n⚠️ IMPORTANT: This is administrative workflow priority based on coordination factors, NOT a clinical urgency assessment. Clinical decisions should be made by healthcare providers based on patient medical status.`;
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('referralModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
