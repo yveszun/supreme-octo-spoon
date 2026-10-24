@@ -203,7 +203,7 @@
 ### Code Quality
 - **Lines of Code:** ~1,800 (single HTML file)
 - **Functions:** 25+ specialized functions for coordination logic
-- **Data Points:** 87 real hospitals, 25 synthetic patient referrals
+- **Data Points:** 20 real hospitals (representative sample), 25 synthetic patient referrals
 - **Features:** Priority scoring, coordination plans, bottleneck intelligence, barrier analysis
 
 ### Iteration Speed
