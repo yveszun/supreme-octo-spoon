@@ -100,19 +100,23 @@ Barrier-specific action templates:
 
 ---
 
-## 🏥 Data Sources
+## 🏥 Data Sources & Privacy
 
-### Hospital Data (Real)
-**20 Massachusetts hospitals** (representative sample) from [CMS Hospital Compare](https://data.cms.gov/provider-data/topics/hospitals)
-- Hospital names, addresses, phone numbers
-- Available specialties (cardiology, orthopedics, neurology, etc.)
-- Emergency services flags
+### Hospital Data (Real, Public Domain)
+**20 Massachusetts hospitals** (representative sample) from [CMS Hospital Compare](https://data.cms.gov/provider-data/)
+- Source: Centers for Medicare & Medicaid Services (publicly available)
+- License: Public domain, no restrictions
+- Includes: Names, addresses, phone numbers, specialties, emergency services
+- Note: Representative sample of 20 from full dataset of 84 MA hospitals for demo optimization
 
-### Patient Referrals (Synthetic)
-**25 synthetic patient records** with clinically appropriate barriers:
-- Names are fictional
-- Barrier patterns reflect real healthcare coordination challenges
-- Specialty distributions match real referral volumes
+### Patient Referrals (Synthetic, Privacy-Safe)
+**25 fictional patient records** created for demonstration:
+- Names are entirely fictional
+- Barrier patterns reflect real coordination challenges (research-based)
+- No real Protected Health Information (PHI) is used
+- Clinically appropriate scenarios (e.g., language barriers in complex diagnoses)
+
+**Privacy Approach:** "Privacy-Conscious Design" - synthetic data only, no external data transmission, honest scope claims (not HIPAA-compliant for production use)
 
 ---
 
