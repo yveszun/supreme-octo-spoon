@@ -1,9 +1,11 @@
-# supreme-octo-spoon
-ReferAll (Hackachusetts 2026)
+# ReferAll - Healthcare Referral Coordination Platform
+**Hackachusetts 2026 | Healthcare & Biotechnology Track**
+
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Try_Now-brightgreen)](https://yveszun.github.io/supreme-octo-spoon/) [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/yveszun/supreme-octo-spoon) [![Status](https://img.shields.io/badge/Status-Hackathon_Submission-orange)](https://github.com/yveszun/supreme-octo-spoon)
+
+> **🌐 [Try ReferAll Live](https://yveszun.github.io/supreme-octo-spoon/)** - No installation required!
 
 ReferAll is a coordination intelligence platform that helps healthcare coordinators prioritize patient referrals and identify system-wide bottlenecks. Built to integrate with existing EHR systems (Epic, Cerner) via HL7 FHIR APIs.
-
-![ReferAll Dashboard](https://img.shields.io/badge/Demo-Live-brightgreen) ![Status](https://img.shields.io/badge/Status-Hackathon%20Project-orange)
 
 ---
 
@@ -46,16 +48,22 @@ Care coordinators manage hundreds of these referrals manually with spreadsheets,
 
 ## 🚀 Quick Start
 
-**This is a single-file HTML demo** - no server, no dependencies, no installation.
+### Option 1: Try Online (Recommended) 🌐
+**No installation required!** Click to try immediately:
 
-1. **Download** `referall.html`
-2. **Open** in any modern web browser (Chrome, Firefox, Safari, Edge)
-3. **Explore** the demo with 20 Massachusetts hospitals (representative sample) and 25 synthetic patient referrals
+# 👉 **[https://yveszun.github.io/supreme-octo-spoon/](https://yveszun.github.io/supreme-octo-spoon/)**
 
+Works on any device with a modern web browser (Chrome, Firefox, Safari, Edge).
+
+### Option 2: Download and Open Locally
+1. **Download** [`referall.html`](https://github.com/yveszun/supreme-octo-spoon/blob/main/referall.html)
+2. **Open** in any modern web browser
+3. **Explore** 20 Massachusetts hospitals and 25 synthetic patient referrals
+
+### Option 3: Clone Repository
 ```bash
-# Or clone and open
-git clone https://github.com/yourusername/referall.git
-cd referall
+git clone https://github.com/yveszun/supreme-octo-spoon.git
+cd supreme-octo-spoon
 open referall.html  # macOS
 # or just double-click referall.html in your file explorer
 ```
