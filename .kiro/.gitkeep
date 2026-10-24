@@ -1,0 +1,2 @@
+# This .gitkeep file ensures the .kiro directory is tracked by git
+# Even if it only contains documentation files, this helps with directory structure

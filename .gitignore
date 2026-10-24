@@ -1,0 +1,39 @@
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary Files
+*.tmp
+*.temp
+
+# Environment Files (if you add backend later)
+.env
+.env.local
+.env.*.local
+
+# Node modules (if you add build tools later)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build outputs (if you add build process later)
+dist/
+build/
+*.bundle.js
+*.bundle.css
+
+# Documentation drafts (keep final versions)
+*_DRAFT.md
+*_OLD.md
+*_BACKUP.*
