@@ -2222,48 +2222,46 @@
             }
         });
 
-        // Mobile touch tooltip activation
+        // Mobile touch tooltip activation using event delegation (no memory leaks)
         // On mobile devices, tooltips should activate on tap instead of hover
-        function initMobileTooltips() {
-            const tooltips = document.querySelectorAll('.tooltip');
+        // Uses single document-level listener that works for all tooltips (present and future)
+        (function initMobileTooltips() {
+            let initialized = false;
             
-            tooltips.forEach(tooltip => {
-                tooltip.addEventListener('click', function(e) {
-                    // Only activate on touch devices (screens < 640px)
-                    if (window.innerWidth < 640) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        // Close all other active tooltips
-                        tooltips.forEach(t => {
-                            if (t !== tooltip) {
-                                t.classList.remove('active');
-                            }
-                        });
-                        
-                        // Toggle this tooltip
-                        this.classList.toggle('active');
-                    }
-                });
-            });
+            if (initialized) return;
+            initialized = true;
             
-            // Close tooltips when clicking outside on mobile
+            // Single event listener using delegation - works for all tooltips
             document.addEventListener('click', function(e) {
-                if (window.innerWidth < 640 && !e.target.closest('.tooltip')) {
-                    tooltips.forEach(t => t.classList.remove('active'));
+                // Only activate on mobile (screens < 640px)
+                if (window.innerWidth >= 640) return;
+                
+                const tooltip = e.target.closest('.tooltip');
+                
+                if (tooltip) {
+                    // Clicked on a tooltip
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const wasActive = tooltip.classList.contains('active');
+                    
+                    // Close all tooltips
+                    document.querySelectorAll('.tooltip').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Toggle the clicked tooltip (close if it was already open)
+                    if (!wasActive) {
+                        tooltip.classList.add('active');
+                    }
+                } else {
+                    // Clicked outside - close all tooltips
+                    document.querySelectorAll('.tooltip').forEach(t => {
+                        t.classList.remove('active');
+                    });
                 }
             });
-        }
-        
-        // Initialize mobile tooltips on page load
-        initMobileTooltips();
-        
-        // Re-initialize after dynamic content updates
-        const originalRenderReferrals = renderReferrals;
-        renderReferrals = function() {
-            originalRenderReferrals();
-            initMobileTooltips();
-        };
+        })();
     </script>
 
     <!-- Mobile Bottom Navigation (visible only on screens < 640px) -->

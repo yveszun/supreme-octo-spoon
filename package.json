@@ -1,0 +1,27 @@
+{
+  "name": "referall-mobile-responsive-tests",
+  "version": "1.0.0",
+  "description": "Automated tests for ReferAll mobile-responsive enhancement",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:mobile": "playwright test --project=mobile-chrome-375",
+    "test:tablet": "playwright test --project=tablet-chrome-768",
+    "test:desktop": "playwright test --project=desktop-chrome-1440",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "serve": "python3 -m http.server 8080"
+  },
+  "keywords": [
+    "healthcare",
+    "referrals",
+    "mobile-responsive",
+    "testing"
+  ],
+  "author": "ReferAll Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.47.0"
+  }
+}
