@@ -34,17 +34,13 @@ async function clearStorage(page) {
 }
 
 /**
- * Helper: Load sample referral data
+ * Helper: Load sample referral data (app already has sample data by default)
  */
 async function loadSampleData(page) {
-    await page.evaluate(() => {
-        // Initialize sample data if not present
-        if (!localStorage.getItem('referrals')) {
-            initializeSampleData();
-        }
-    });
-    await page.reload();
+    // The application initializes sample data automatically on load
+    // Just wait for it to be ready
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500); // Give time for JS to initialize
 }
 
 // ============================================================================

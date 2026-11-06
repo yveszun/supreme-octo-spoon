@@ -50,6 +50,9 @@ module.exports = defineConfig({
       use: { 
         ...devices['iPhone 12'],
         viewport: { width: 375, height: 667 },
+        // Override to use Chromium only (CI has only Chromium installed)
+        channel: undefined,
+        browserName: 'chromium',
       },
     },
     {
@@ -57,6 +60,9 @@ module.exports = defineConfig({
       use: { 
         ...devices['iPad'],
         viewport: { width: 768, height: 1024 },
+        // Override to use Chromium only (CI has only Chromium installed)
+        channel: undefined,
+        browserName: 'chromium',
       },
     },
     {
