@@ -220,7 +220,7 @@
     <!-- Main Content -->
     <main class="container mx-auto px-3 md:px-4 py-4 md:py-6">
         <!-- Stats Bar - Responsive Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3 md:gap-4 mb-4 md:mb-6">
+        <div id="statsBar" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3 md:gap-4 mb-4 md:mb-6">
             <div class="bg-white rounded-lg shadow p-4">
                 <div class="text-gray-500 text-sm">Total Hospitals</div>
                 <div class="text-3xl font-bold text-blue-600" id="totalHospitals">20</div>
@@ -335,7 +335,7 @@
         </div>
         
         <!-- Section 3: Referral Bottleneck Intelligence (Full Width, Collapsible) -->
-        <div class="mt-4 md:mt-6 bg-white rounded-lg shadow-lg">
+        <div id="bottleneckPanel" class="mt-4 md:mt-6 bg-white rounded-lg shadow-lg">
             <button onclick="toggleBottleneckSection()" class="w-full px-4 md:px-6 py-3 md:py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
                 <div class="flex items-center">
                     <svg class="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
