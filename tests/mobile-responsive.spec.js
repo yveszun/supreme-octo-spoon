@@ -13,7 +13,7 @@
 const { test, expect } = require('@playwright/test');
 
 // Base URL for tests
-const BASE_URL = process.env.BASE_URL || 'http://localhost:8080';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:9000';
 
 /**
  * Helper: Set viewport size and wait for page to stabilize
@@ -155,10 +155,10 @@ test.describe('Modal - Opening and Closing', () => {
         await setViewport(page, 375, 667);
         
         // Wait for referrals to render
-        await page.waitForSelector('#referralList [data-referral-id]', { timeout: 5000 });
+        await page.waitForSelector('.referral-card', { timeout: 10000 });
         
         // Click first referral card
-        const firstCard = page.locator('#referralList [data-referral-id]').first();
+        const firstCard = page.locator('.referral-card').first();
         await firstCard.click();
         
         // Modal should be visible

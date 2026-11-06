@@ -4,9 +4,8 @@
       "/inner_container/opt/toolchains/.nvm/versions/node/v22.23.4/bin/node",
       "/projects/sandbox/supreme-octo-spoon/node_modules/.bin/playwright",
       "test",
-      "--project=mobile-chrome-375",
-      "--grep",
-      "Mobile Navigation - Target IDs"
+      "tests/smoke.spec.js",
+      "--project=mobile-chrome-375"
     ],
     "configFile": "/projects/sandbox/supreme-octo-spoon/playwright.config.js",
     "rootDir": "/projects/sandbox/supreme-octo-spoon/tests",
@@ -20,7 +19,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 1
+      "actualWorkers": 3
     },
     "preserveOutput": "always",
     "projects": [
@@ -29,7 +28,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 3
         },
         "id": "mobile-chrome-375",
         "name": "mobile-chrome-375",
@@ -45,7 +44,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 3
         },
         "id": "tablet-chrome-768",
         "name": "tablet-chrome-768",
@@ -61,7 +60,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 3
         },
         "id": "desktop-chrome-1440",
         "name": "desktop-chrome-1440",
@@ -81,7 +80,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 1
+          "actualWorkers": 3
         },
         "name": "mobile-chrome-375",
         "testDir": "/projects/sandbox/supreme-octo-spoon/tests",
@@ -144,29 +143,31 @@
     "version": "1.65.0",
     "workers": 4,
     "webServer": {
-      "command": "python3 -m http.server 8080",
-      "port": 8080,
-      "reuseExistingServer": true,
-      "timeout": 120000
+      "command": "python3 -m http.server 9000",
+      "url": "http://localhost:9000/index.html",
+      "reuseExistingServer": false,
+      "timeout": 120000,
+      "stdout": "pipe",
+      "stderr": "pipe"
     }
   },
   "suites": [
     {
-      "title": "mobile-responsive.spec.js",
-      "file": "mobile-responsive.spec.js",
+      "title": "smoke.spec.js",
+      "file": "smoke.spec.js",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Mobile Navigation - Target IDs",
-          "file": "mobile-responsive.spec.js",
-          "line": 50,
+          "title": "Smoke Test - Basic Application Load",
+          "file": "smoke.spec.js",
+          "line": 10,
           "column": 6,
           "specs": [
             {
-              "title": "should have all required navigation target IDs present",
-              "ok": false,
+              "title": "application loads and shows ReferAll header",
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -179,63 +180,93 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 5218,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeAttached\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#statsBar')\nExpected: attached\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeAttached\" locator('#statsBar') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#statsBar')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeAttached\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#statsBar')\nExpected: attached\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeAttached\" locator('#statsBar') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#statsBar')\u001b[22m\n\n    at /projects/sandbox/supreme-octo-spoon/tests/mobile-responsive.spec.js:60:32",
-                        "location": {
-                          "file": "/projects/sandbox/supreme-octo-spoon/tests/mobile-responsive.spec.js",
-                          "column": 32,
-                          "line": 60
-                        },
-                        "snippet": "  58 |         const bottleneckPanel = await page.locator('#bottleneckPanel');\n  59 |         \n> 60 |         await expect(statsBar).toBeAttached();\n     |                                ^\n  61 |         await expect(referralList).toBeAttached();\n  62 |         await expect(barrierPanel).toBeAttached();\n  63 |         await expect(bottleneckPanel).toBeAttached();"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/projects/sandbox/supreme-octo-spoon/tests/mobile-responsive.spec.js",
-                            "column": 32,
-                            "line": 60
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeAttached\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#statsBar')\nExpected: attached\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeAttached\" locator('#statsBar') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('#statsBar')\u001b[22m\n\n\n  58 |         const bottleneckPanel = await page.locator('#bottleneckPanel');\n  59 |         \n> 60 |         await expect(statsBar).toBeAttached();\n     |                                ^\n  61 |         await expect(referralList).toBeAttached();\n  62 |         await expect(barrierPanel).toBeAttached();\n  63 |         await expect(bottleneckPanel).toBeAttached();\n    at /projects/sandbox/supreme-octo-spoon/tests/mobile-responsive.spec.js:60:32"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 856,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-06T23:26:35.006Z",
+                      "startTime": "2026-11-06T23:37:14.294Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/projects/sandbox/supreme-octo-spoon/test-results/mobile-responsive-Mobile-N-9bb4a-vigation-target-IDs-present-mobile-chrome-375/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/projects/sandbox/supreme-octo-spoon/test-results/mobile-responsive-Mobile-N-9bb4a-vigation-target-IDs-present-mobile-chrome-375/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/projects/sandbox/supreme-octo-spoon/test-results/mobile-responsive-Mobile-N-9bb4a-vigation-target-IDs-present-mobile-chrome-375/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/projects/sandbox/supreme-octo-spoon/tests/mobile-responsive.spec.js",
-                        "column": 32,
-                        "line": 60
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
-              "id": "d2030d89e881f596fec5-8a113ec5872b1ecc7da1",
-              "file": "mobile-responsive.spec.js",
-              "line": 51,
+              "id": "2c14808d47b386fba9eb-b60cab39fd35686a1bd4",
+              "file": "smoke.spec.js",
+              "line": 11,
+              "column": 5
+            },
+            {
+              "title": "referral list renders with sample data @mobile",
+              "ok": true,
+              "tags": [
+                "mobile"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome-375",
+                  "projectName": "mobile-chrome-375",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 859,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-06T23:37:14.293Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-7aa84a9bd215b3981f7a",
+              "file": "smoke.spec.js",
+              "line": 21,
+              "column": 5
+            },
+            {
+              "title": "mobile navigation is visible at 375px",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-chrome-375",
+                  "projectName": "mobile-chrome-375",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 876,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-06T23:37:14.235Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2c14808d47b386fba9eb-b539f1a6423b413d24f8",
+              "file": "smoke.spec.js",
+              "line": 37,
               "column": 5
             }
           ]
@@ -245,11 +276,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-06T23:26:34.601Z",
-    "duration": 5797.865000000001,
-    "expected": 0,
+    "startTime": "2026-11-06T23:37:13.521Z",
+    "duration": 1814.516,
+    "expected": 3,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 0,
     "flaky": 0
   }
 }
