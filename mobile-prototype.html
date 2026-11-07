@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ReferAll Mobile UX Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-400: #9ca3af;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            font-size: 15px;
+            line-height: 1.5;
+            padding-bottom: 70px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .header-back {
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        /* Filters */
+        .filters {
+            background: white;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--gray-200);
+            background: white;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 150ms;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Referral List */
+        .referral-list {
+            padding: 16px 20px;
+        }
+
+        .referral-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 200ms;
+        }
+
+        .referral-card:active {
+            transform: scale(0.98);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .patient-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            line-height: 1.3;
+        }
+
+        .patient-meta {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-top: 2px;
+        }
+
+        .priority-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .priority-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .priority-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .priority-low {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .referral-info {
+            margin-bottom: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .info-icon {
+            font-size: 1rem;
+            width: 18px;
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            color: var(--gray-700);
+            flex: 1;
+        }
+
+        .barriers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .barrier-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .next-action {
+            padding: 12px;
+            background: var(--gray-50);
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .next-action-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .next-action-text {
+            font-size: 0.9rem;
+            color: var(--gray-900);
+            font-weight: 500;
+        }
+
+        .referral-date {
+            font-size: 0.8rem;
+            color: var(--gray-400);
+            margin-top: 8px;
+        }
+
+        /* Detail View */
+        .detail-view {
+            display: none;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .detail-view.active {
+            display: block;
+        }
+
+        .detail-section {
+            padding: 20px;
+            border-bottom: 8px solid var(--gray-50);
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .detail-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+
+        .detail-label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 0.875rem;
+            color: var(--gray-900);
+            text-align: right;
+            font-weight: 500;
+        }
+
+        /* Coordination Plan */
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .plan-progress {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--gray-200);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 300ms;
+        }
+
+        .barrier-group {
+            margin-bottom: 24px;
+        }
+
+        .barrier-group-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .action-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .action-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--gray-300);
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 150ms;
+        }
+
+        .action-checkbox.checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .action-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .action-content {
+            flex: 1;
+        }
+
+        .action-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .action-item.completed .action-title {
+            text-decoration: line-through;
+            color: var(--gray-400);
+        }
+
+        .action-detail {
+            font-size: 0.825rem;
+            color: var(--gray-600);
+            line-height: 1.4;
+        }
+
+        .action-item.completed .action-detail {
+            color: var(--gray-400);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: var(--gray-600);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            min-width: 70px;
+            transition: color 150ms;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Alert Banner */
+        .alert-banner {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            padding: 12px 16px;
+            margin: 16px 20px;
+            border-radius: 8px;
+        }
+
+        .alert-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 4px;
+        }
+
+        .alert-text {
+            font-size: 0.825rem;
+            color: #78350f;
+            line-height: 1.4;
+        }
+
+        /* Status badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-issued {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-scheduled {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 40px;
+            color: var(--gray-400);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            font-size: 0.95rem;
+        }
+
+        /* Button */
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 16px;
+            transition: all 150ms;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Referrals List View -->
+<div id="listView" class="view active">
+    <div class="header">
+        <h1>Referrals</h1>
+    </div>
+
+    <div class="filters">
+        <button class="filter-btn active" onclick="filterReferrals('stuck')">Stuck (3)</button>
+        <button class="filter-btn" onclick="filterReferrals('active')">In Progress (12)</button>
+        <button class="filter-btn" onclick="filterReferrals('all')">All (25)</button>
+    </div>
+
+    <div class="alert-banner">
+        <div class="alert-title">🔴 3 Referrals Need Attention</div>
+        <div class="alert-text">Rule-based prioritization based on barriers, wait time, and contact attempts</div>
+    </div>
+
+    <div class="referral-list" id="referralList">
+        <!-- Rendered by JavaScript -->
+    </div>
+</div>
+
+<!-- Detail / Coordination Plan View -->
+<div id="detailView" class="detail-view">
+    <div class="header">
+        <span class="header-back" onclick="closeDetail()">←</span>
+        <h1 id="detailPatientName">Patient Details</h1>
+        <span></span>
+    </div>
+
+    <div id="detailContent">
+        <!-- Rendered by JavaScript -->
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+    <div class="nav-item active">
+        <span class="nav-icon">📋</span>
+        <span>Referrals</span>
+    </div>
+    <div class="nav-item">
+        <span class="nav-icon">📊</span>
+        <span>Insights</span>
+    </div>
+    <div class="nav-item">
+        <span class="nav-icon">🏥</span>
+        <span>Hospitals</span>
+    </div>
+    <div class="nav-item">
+        <span class="nav-icon">⋯</span>
+        <span>More</span>
+    </div>
+</div>
+
+<script>
+// Real data from application
+const referrals = [
+    {
+        id: "REF001",
+        patientName: "Maria Gonzalez",
+        age: 67,
+        primaryCare: "Springfield Community Health",
+        referredTo: "BAYSTATE MEDICAL CENTER",
+        specialty: "Cardiology",
+        reason: "Persistent chest pain, abnormal ECG",
+        referralDate: "2026-09-15",
+        status: "Issued",
+        barriers: ["transportation", "language"],
+        distance: 45,
+        insurance: "MassHealth",
+        language: "Spanish",
+        attempts: 3
+    },
+    {
+        id: "REF004",
+        patientName: "Mohammed Hassan",
+        age: 38,
+        primaryCare: "Lawrence Community Clinic",
+        referredTo: "MERRIMACK HEALTH LAWRENCE HOSPITAL",
+        specialty: "Gastroenterology",
+        reason: "Chronic abdominal pain, suspected IBD",
+        referralDate: "2026-09-28",
+        status: "Issued",
+        barriers: ["insurance", "communication"],
+        distance: 5,
+        insurance: "Pending Verification",
+        language: "Arabic",
+        attempts: 4
+    },
+    {
+        id: "REF007",
+        patientName: "Sarah Johnson",
+        age: 29,
+        primaryCare: "Cambridge Family Health",
+        referredTo: "MOUNT AUBURN HOSPITAL",
+        specialty: "Dermatology",
+        reason: "Suspicious mole, family history of melanoma",
+        referralDate: "2026-10-08",
+        status: "Issued",
+        barriers: ["scheduling"],
+        distance: 7,
+        insurance: "Harvard Pilgrim",
+        language: "English",
+        attempts: 2,
+        waitTime: 45
+    },
+    {
+        id: "REF002",
+        patientName: "James Chen",
+        age: 52,
+        primaryCare: "Boston Primary Care Associates",
+        referredTo: "MASSACHUSETTS GENERAL HOSPITAL",
+        specialty: "Orthopedics",
+        reason: "Chronic knee pain, possible surgery needed",
+        referralDate: "2026-10-01",
+        status: "Scheduled",
+        scheduledDate: "2026-11-15",
+        barriers: [],
+        distance: 8,
+        insurance: "Blue Cross Blue Shield",
+        language: "English",
+        attempts: 1
+    },
+    {
+        id: "REF005",
+        patientName: "Linda Washington",
+        age: 71,
+        primaryCare: "Boston Medical Center Primary Care",
+        referredTo: "BRIGHAM AND WOMEN'S HOSPITAL",
+        specialty: "Neurology",
+        reason: "Memory loss, possible dementia workup",
+        referralDate: "2026-10-05",
+        status: "Confirmed",
+        scheduledDate: "2026-11-20",
+        barriers: [],
+        distance: 6,
+        insurance: "Medicare + Medicaid",
+        language: "English",
+        attempts: 1
+    }
+];
+
+// Priority calculation (from existing algorithm)
+function calculatePriority(referral) {
+    let score = 0;
+    if (referral.barriers.length > 0) score += 50;
+    if (referral.barriers.length > 2) score += 20;
+    if (referral.attempts > 3) score += 30;
+    if (referral.distance > 30) score += 15;
+    if (referral.waitTime && referral.waitTime > 30) score += 25;
+    
+    const daysSinceReferral = Math.floor((new Date() - new Date(referral.referralDate)) / (1000 * 60 * 60 * 24));
+    if (daysSinceReferral > 30) score += 20;
+    if (daysSinceReferral > 60) score += 30;
+    
+    if (score >= 70) return { level: 'HIGH', label: 'High Priority', class: 'priority-high' };
+    if (score >= 40) return { level: 'MEDIUM', label: 'Medium', class: 'priority-medium' };
+    return { level: 'LOW', label: 'Low', class: 'priority-low' };
+}
+
+function getDaysSince(dateString) {
+    const days = Math.floor((new Date() - new Date(dateString)) / (1000 * 60 * 60 * 24));
+    return `${days} day${days !== 1 ? 's' : ''} ago`;
+}
+
+function getBarrierIcon(barrier) {
+    const icons = {
+        'transportation': '🚗',
+        'language': '💬',
+        'communication': '💬',
+        'insurance': '💳',
+        'scheduling': '📅'
+    };
+    return icons[barrier] || '⚠️';
+}
+
+function getBarrierLabel(barrier) {
+    const labels = {
+        'transportation': 'Transport',
+        'language': 'Language',
+        'communication': 'Communication',
+        'insurance': 'Insurance',
+        'scheduling': 'Scheduling'
+    };
+    return labels[barrier] || barrier;
+}
+
+function getNextAction(referral) {
+    if (!referral.barriers || referral.barriers.length === 0) {
+        return null;
+    }
+    
+    const actions = {
+        'transportation': 'Arrange medical transportation',
+        'language': 'Schedule interpreter services',
+        'communication': 'Attempt contact via family member',
+        'insurance': 'Verify insurance coverage',
+        'scheduling': 'Contact facility to expedite'
+    };
+    
+    return actions[referral.barriers[0]] || 'Review coordination plan';
+}
+
+function renderReferralCard(referral) {
+    const priority = calculatePriority(referral);
+    const nextAction = getNextAction(referral);
+    
+    return `
+        <div class="referral-card" onclick="showDetail('${referral.id}')">
+            <div class="card-header">
+                <div>
+                    <div class="patient-name">${referral.patientName}</div>
+                    <div class="patient-meta">Age ${referral.age} • ${referral.specialty}</div>
+                </div>
+                <div class="priority-badge ${priority.class}">${priority.label}</div>
+            </div>
+            
+            <div class="referral-info">
+                <div class="info-row">
+                    <span class="info-icon">🏥</span>
+                    <span class="info-text">${referral.referredTo} (${referral.distance}mi)</span>
+                </div>
+            </div>
+            
+            ${referral.barriers.length > 0 ? `
+                <div class="barriers">
+                    ${referral.barriers.map(b => `
+                        <span class="barrier-tag">${getBarrierIcon(b)} ${getBarrierLabel(b)}</span>
+                    `).join('')}
+                </div>
+            ` : ''}
+            
+            ${nextAction ? `
+                <div class="next-action">
+                    <div class="next-action-label">Next Action</div>
+                    <div class="next-action-text">${nextAction}</div>
+                </div>
+            ` : `
+                <div class="status-badge status-${referral.status.toLowerCase()}">
+                    ✓ ${referral.status}${referral.scheduledDate ? ' - ' + new Date(referral.scheduledDate).toLocaleDateString('en-US', {month: 'short', day: 'numeric'}) : ''}
+                </div>
+            `}
+            
+            <div class="referral-date">Referred ${getDaysSince(referral.referralDate)}</div>
+        </div>
+    `;
+}
+
+function renderReferralList(filter = 'stuck') {
+    let filtered = referrals;
+    
+    if (filter === 'stuck') {
+        filtered = referrals.filter(r => r.barriers && r.barriers.length > 0);
+    } else if (filter === 'active') {
+        filtered = referrals.filter(r => r.status !== 'Completed');
+    }
+    
+    const html = filtered.map(r => renderReferralCard(r)).join('');
+    document.getElementById('referralList').innerHTML = html || `
+        <div class="empty-state">
+            <div class="empty-icon">✓</div>
+            <div class="empty-text">No referrals match this filter</div>
+        </div>
+    `;
+}
+
+function showDetail(referralId) {
+    const referral = referrals.find(r => r.id === referralId);
+    if (!referral) return;
+    
+    const priority = calculatePriority(referral);
+    
+    document.getElementById('detailPatientName').textContent = referral.patientName;
+    
+    // Generate or load existing coordination plan
+    const plan = generateCoordinationPlan(referral);
+    const completedCount = plan.actions.filter(a => a.completed).length;
+    const progressPercent = Math.round((completedCount / plan.actions.length) * 100);
+    
+    const detailHTML = `
+        <div class="detail-section">
+            <div class="section-title">Patient Information</div>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Age</span>
+                    <span class="detail-value">${referral.age} years</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Language</span>
+                    <span class="detail-value">${referral.language}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Insurance</span>
+                    <span class="detail-value">${referral.insurance}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="detail-section">
+            <div class="section-title">Referral Details</div>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">From</span>
+                    <span class="detail-value">${referral.primaryCare}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">To</span>
+                    <span class="detail-value">${referral.referredTo}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Specialty</span>
+                    <span class="detail-value">${referral.specialty}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Distance</span>
+                    <span class="detail-value">${referral.distance} miles</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Reason</span>
+                    <span class="detail-value">${referral.reason}</span>
+                </div>
+            </div>
+        </div>
+        
+        ${referral.barriers.length > 0 ? `
+            <div class="detail-section">
+                <div class="plan-header">
+                    <div class="section-title" style="margin-bottom: 0;">Coordination Plan</div>
+                    <div class="plan-progress">${completedCount} of ${plan.actions.length}</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                </div>
+                
+                ${renderCoordinationPlan(plan, referral.id)}
+            </div>
+        ` : `
+            <div class="detail-section">
+                <div class="status-badge status-${referral.status.toLowerCase()}">
+                    ✓ No Active Barriers
+                </div>
+                <div style="margin-top: 12px; font-size: 0.9rem; color: var(--gray-600);">
+                    Referral is progressing smoothly
+                </div>
+            </div>
+        `}
+    `;
+    
+    document.getElementById('detailContent').innerHTML = detailHTML;
+    document.getElementById('listView').style.display = 'none';
+    document.getElementById('detailView').classList.add('active');
+}
+
+function generateCoordinationPlan(referral) {
+    // Check if plan exists in localStorage
+    const stored = localStorage.getItem('coordinationPlan_' + referral.id);
+    if (stored) {
+        return JSON.parse(stored);
+    }
+    
+    const actions = [];
+    
+    if (referral.barriers.includes('transportation')) {
+        actions.push({
+            id: `${referral.id}-transport-1`,
+            barrier: 'transportation',
+            action: `Contact ${referral.insurance} for medical transportation`,
+            detail: `Patient lives ${referral.distance} miles from facility`,
+            completed: false
+        });
+        actions.push({
+            id: `${referral.id}-transport-2`,
+            barrier: 'transportation',
+            action: 'Explore volunteer driver programs',
+            detail: 'Alternative if insurance transport unavailable',
+            completed: false
+        });
+    }
+    
+    if (referral.barriers.includes('language') || referral.barriers.includes('communication')) {
+        actions.push({
+            id: `${referral.id}-comm-1`,
+            barrier: 'communication',
+            action: `Arrange professional ${referral.language} interpreter`,
+            detail: 'For all appointments and communications',
+            completed: false
+        });
+        actions.push({
+            id: `${referral.id}-comm-2`,
+            barrier: 'communication',
+            action: 'Send appointment materials in patient\'s language',
+            detail: 'Use translation services',
+            completed: false
+        });
+        actions.push({
+            id: `${referral.id}-comm-3`,
+            barrier: 'communication',
+            action: 'Attempt contact through family member or CHW',
+            detail: `${referral.attempts} previous attempts unsuccessful`,
+            completed: false
+        });
+    }
+    
+    if (referral.barriers.includes('insurance')) {
+        actions.push({
+            id: `${referral.id}-ins-1`,
+            barrier: 'insurance',
+            action: `Verify coverage with ${referral.insurance}`,
+            detail: 'Appointment cannot proceed without verification',
+            completed: false
+        });
+        actions.push({
+            id: `${referral.id}-ins-2`,
+            barrier: 'insurance',
+            action: 'Assist with prior authorization if required',
+            detail: 'Check if specialty requires pre-approval',
+            completed: false
+        });
+    }
+    
+    if (referral.barriers.includes('scheduling')) {
+        actions.push({
+            id: `${referral.id}-sched-1`,
+            barrier: 'scheduling',
+            action: `Contact ${referral.referredTo} to expedite`,
+            detail: `Current wait time: ${referral.waitTime || 'Unknown'} days`,
+            completed: false
+        });
+    }
+    
+    const plan = {
+        referralId: referral.id,
+        actions: actions,
+        generatedAt: new Date().toISOString()
+    };
+    
+    // Save to localStorage
+    localStorage.setItem('coordinationPlan_' + referral.id, JSON.stringify(plan));
+    
+    return plan;
+}
+
+function renderCoordinationPlan(plan, referralId) {
+    const groupedActions = {};
+    plan.actions.forEach(action => {
+        if (!groupedActions[action.barrier]) {
+            groupedActions[action.barrier] = [];
+        }
+        groupedActions[action.barrier].push(action);
+    });
+    
+    let html = '';
+    
+    Object.keys(groupedActions).forEach(barrier => {
+        html += `
+            <div class="barrier-group">
+                <div class="barrier-group-title">
+                    ${getBarrierIcon(barrier)} ${getBarrierLabel(barrier)}
+                </div>
+                ${groupedActions[barrier].map(action => `
+                    <div class="action-item ${action.completed ? 'completed' : ''}" id="action-${action.id}">
+                        <div class="action-checkbox ${action.completed ? 'checked' : ''}" 
+                             onclick="toggleAction('${referralId}', '${action.id}')">
+                        </div>
+                        <div class="action-content">
+                            <div class="action-title">${action.action}</div>
+                            <div class="action-detail">${action.detail}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    });
+    
+    return html;
+}
+
+function toggleAction(referralId, actionId) {
+    const plan = JSON.parse(localStorage.getItem('coordinationPlan_' + referralId));
+    const action = plan.actions.find(a => a.id === actionId);
+    
+    if (action) {
+        action.completed = !action.completed;
+        localStorage.setItem('coordinationPlan_' + referralId, JSON.stringify(plan));
+        
+        // Update UI
+        const actionEl = document.getElementById('action-' + actionId);
+        const checkbox = actionEl.querySelector('.action-checkbox');
+        
+        if (action.completed) {
+            actionEl.classList.add('completed');
+            checkbox.classList.add('checked');
+        } else {
+            actionEl.classList.remove('completed');
+            checkbox.classList.remove('checked');
+        }
+        
+        // Update progress
+        const completedCount = plan.actions.filter(a => a.completed).length;
+        const progressPercent = Math.round((completedCount / plan.actions.length) * 100);
+        document.querySelector('.plan-progress').textContent = `${completedCount} of ${plan.actions.length}`;
+        document.querySelector('.progress-fill').style.width = progressPercent + '%';
+    }
+}
+
+function closeDetail() {
+    document.getElementById('listView').style.display = 'block';
+    document.getElementById('detailView').classList.remove('active');
+}
+
+function filterReferrals(filter) {
+    // Update active filter button
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    renderReferralList(filter);
+}
+
+// Initialize
+renderReferralList('stuck');
+</script>
+
+</body>
+</html>
