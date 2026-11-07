@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PR Previews - ReferAll</title>
+  <style>
+    body { font-family: system-ui; max-width: 800px; margin: 40px auto; padding: 20px; }
+    h1 { color: #2563eb; }
+    .pr-list { list-style: none; padding: 0; }
+    .pr-item { background: #f3f4f6; padding: 15px; margin: 10px 0; border-radius: 8px; }
+    .pr-item a { color: #2563eb; text-decoration: none; font-weight: 600; }
+    .pr-item a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>🔍 PR Preview Deployments</h1>
+  <p>Active PR previews for ReferAll mobile-responsive development</p>
+  <ul class="pr-list" id="prList"></ul>
+  <script>
+    // List all PR directories dynamically
+    const prDirs = [];
+    fetch('.')
+      .then(r => r.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const links = doc.querySelectorAll('a');
+        links.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && href.startsWith('pr-')) {
+            const prNum = href.replace('pr-', '').replace('/', '');
+            prDirs.push(prNum);
+          }
+        });
+        displayPRs(prDirs);
+      });
+    
+    function displayPRs(prs) {
+      const list = document.getElementById('prList');
+      if (prs.length === 0) {
+        list.innerHTML = '<li>No active PR previews</li>';
+      } else {
+        list.innerHTML = prs.map(pr => 
+          `<li class="pr-item">
+            <a href="pr-${pr}/">PR #${pr} Preview</a> - 
+            <a href="https://github.com/yveszun/supreme-octo-spoon/pull/${pr}" target="_blank">View PR on GitHub</a>
+          </li>`
+        ).join('');
+      }
+    }
+  </script>
+</body>
+</html>
