@@ -19,7 +19,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 3
+      "actualWorkers": 1
     },
     "preserveOutput": "always",
     "projects": [
@@ -28,7 +28,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 3
+          "actualWorkers": 1
         },
         "id": "mobile-chrome-375",
         "name": "mobile-chrome-375",
@@ -37,14 +37,14 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 15000
       },
       {
         "outputDir": "/projects/sandbox/supreme-octo-spoon/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 3
+          "actualWorkers": 1
         },
         "id": "tablet-chrome-768",
         "name": "tablet-chrome-768",
@@ -53,14 +53,14 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 15000
       },
       {
         "outputDir": "/projects/sandbox/supreme-octo-spoon/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 3
+          "actualWorkers": 1
         },
         "id": "desktop-chrome-1440",
         "name": "desktop-chrome-1440",
@@ -69,7 +69,7 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 15000
       }
     ],
     "filteredProjects": [
@@ -80,14 +80,14 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 3
+          "actualWorkers": 1
         },
         "name": "mobile-chrome-375",
         "testDir": "/projects/sandbox/supreme-octo-spoon/tests",
         "snapshotDir": "/projects/sandbox/supreme-octo-spoon/tests",
         "testIgnore": [],
         "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
-        "timeout": 30000,
+        "timeout": 15000,
         "use": {
           "baseURL": "http://localhost:8080",
           "trace": "on-first-retry",
@@ -141,7 +141,7 @@
     "updateSnapshots": "default",
     "updateSourceMethod": "patch",
     "version": "1.65.0",
-    "workers": 4,
+    "workers": 1,
     "webServer": {
       "command": "python3 -m http.server 9000",
       "url": "http://localhost:9000/index.html",
@@ -171,7 +171,7 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 15000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "mobile-chrome-375",
@@ -181,12 +181,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 856,
+                      "duration": 832,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-06T23:37:14.294Z",
+                      "startTime": "2026-11-07T02:36:04.460Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -207,22 +207,22 @@
               ],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 15000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "mobile-chrome-375",
                   "projectName": "mobile-chrome-375",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 859,
+                      "duration": 749,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-06T23:37:14.293Z",
+                      "startTime": "2026-11-07T02:36:05.381Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -241,22 +241,22 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 15000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "mobile-chrome-375",
                   "projectName": "mobile-chrome-375",
                   "results": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 876,
+                      "duration": 748,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-11-06T23:37:14.235Z",
+                      "startTime": "2026-11-07T02:36:06.140Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -276,8 +276,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-06T23:37:13.521Z",
-    "duration": 1814.516,
+    "startTime": "2026-11-07T02:36:03.720Z",
+    "duration": 3254.367,
     "expected": 3,
     "skipped": 0,
     "unexpected": 0,

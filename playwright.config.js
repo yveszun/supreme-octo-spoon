@@ -16,10 +16,13 @@ module.exports = defineConfig({
   forbidOnly: !!process.env.CI,
   
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  retries: 0, // Disable retries while debugging
   
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Limit workers for stability */
+  workers: 1,
+  
+  /* Set reasonable test timeout */
+  timeout: 15 * 1000, // 15 seconds per test
   
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
