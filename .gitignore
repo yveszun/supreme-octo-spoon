@@ -24,7 +24,7 @@ npm-debug.log*
 
 # Node modules (if you add build tools later)
 node_modules/
-package-lock.json
+# Note: package-lock.json is committed for GitHub Actions CI reproducibility
 yarn.lock
 
 # Build outputs (if you add build process later)

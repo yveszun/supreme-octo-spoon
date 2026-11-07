@@ -1,0 +1,140 @@
+name: PR Preview Deployment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-repo
+      
+      - name: Create PR preview directory
+        run: |
+          mkdir -p gh-pages-repo/pr-preview/pr-${{ github.event.pull_request.number }}
+      
+      - name: Copy PR files to preview directory
+        run: |
+          cp index.html gh-pages-repo/pr-preview/pr-${{ github.event.pull_request.number }}/
+          # Copy any other necessary files (CSS, JS, etc. if they exist separately)
+          if [ -d "assets" ]; then
+            cp -r assets gh-pages-repo/pr-preview/pr-${{ github.event.pull_request.number }}/
+          fi
+          if [ -d "css" ]; then
+            cp -r css gh-pages-repo/pr-preview/pr-${{ github.event.pull_request.number }}/
+          fi
+          if [ -d "js" ]; then
+            cp -r js gh-pages-repo/pr-preview/pr-${{ github.event.pull_request.number }}/
+          fi
+      
+      - name: Create index for preview directory
+        run: |
+          cat > gh-pages-repo/pr-preview/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>PR Previews - ReferAll</title>
+            <style>
+              body { font-family: system-ui; max-width: 800px; margin: 40px auto; padding: 20px; }
+              h1 { color: #2563eb; }
+              .pr-list { list-style: none; padding: 0; }
+              .pr-item { background: #f3f4f6; padding: 15px; margin: 10px 0; border-radius: 8px; }
+              .pr-item a { color: #2563eb; text-decoration: none; font-weight: 600; }
+              .pr-item a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <h1>🔍 PR Preview Deployments</h1>
+            <p>Active PR previews for ReferAll mobile-responsive development</p>
+            <ul class="pr-list" id="prList"></ul>
+            <script>
+              // List all PR directories dynamically
+              const prDirs = [];
+              fetch('.')
+                .then(r => r.text())
+                .then(html => {
+                  const parser = new DOMParser();
+                  const doc = parser.parseFromString(html, 'text/html');
+                  const links = doc.querySelectorAll('a');
+                  links.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && href.startsWith('pr-')) {
+                      const prNum = href.replace('pr-', '').replace('/', '');
+                      prDirs.push(prNum);
+                    }
+                  });
+                  displayPRs(prDirs);
+                });
+              
+              function displayPRs(prs) {
+                const list = document.getElementById('prList');
+                if (prs.length === 0) {
+                  list.innerHTML = '<li>No active PR previews</li>';
+                } else {
+                  list.innerHTML = prs.map(pr => 
+                    `<li class="pr-item">
+                      <a href="pr-${pr}/">PR #${pr} Preview</a> - 
+                      <a href="https://github.com/yveszun/supreme-octo-spoon/pull/${pr}" target="_blank">View PR on GitHub</a>
+                    </li>`
+                  ).join('');
+                }
+              }
+            </script>
+          </body>
+          </html>
+          EOF
+      
+      - name: Commit and push to gh-pages
+        run: |
+          cd gh-pages-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pr-preview/
+          git commit -m "Deploy preview for PR #${{ github.event.pull_request.number }}" || echo "No changes to commit"
+          git push origin gh-pages
+      
+      - name: Comment preview URL on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const previewUrl = `https://yveszun.github.io/supreme-octo-spoon/pr-preview/pr-${prNumber}/`;
+            
+            const comment = `## 📱 Mobile Preview Deployed!
+            
+            Your PR preview is ready for testing on mobile devices:
+            
+            **Preview URL:** ${previewUrl}
+            
+            ### Test on iPhone:
+            1. Open the URL above on your iPhone
+            2. Test referral navigation and coordination plans
+            3. Verify checkbox persistence after refresh
+            4. Test filtering (Stuck, In Progress, Completed, All)
+            
+            ✅ Full JavaScript, localStorage, and referral workflow supported
+            
+            ---
+            Preview auto-updates when you push new commits to this PR.`;
+            
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: comment
+            });
